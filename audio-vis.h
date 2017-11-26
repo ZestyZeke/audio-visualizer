@@ -11,7 +11,8 @@
 
 // C++ headers
 #include <iostream>
-#include <fstream>
-using namespace std;
+
+// SMFL headers
+#include <SFML/Audio.hpp>
 
 #endif

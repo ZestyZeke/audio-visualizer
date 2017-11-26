@@ -8,9 +8,11 @@ CFLAGS 		= -g -Wall $(INCLUDES)
 CXXFLAGS 	= -g -Wall $(INCLUDES) -std=c++11
 
 LDFLAGS 	= -g
-LDLIBS 		=
+LDLIBS 		= -lsfml-audio -lsfml-system
 
-$(TARGET):
+$(TARGET): analyzable.o
+
+analyzable.o:
 
 .PHONY: clean
 clean:
