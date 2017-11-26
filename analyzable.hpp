@@ -1,5 +1,7 @@
 /*
  * analyzable.hpp
+ *
+ * Adapted from SFML/Music.hpp
  */
 
 #ifndef ANALYZABLE_HPP
@@ -12,13 +14,66 @@
 
 namespace sf
 {
-        class Analyzable : public Music
+        class InputStream;
+        class Analyzable : public SoundStream
         {
-                virtual bool onGetData(Chunk& data);
+                public:
+                        template <typename T>
+                                struct Span
+                                {
+                                        Span()
+                                        {
+                                        }
 
-                virtual void onSeek(Time timeOffset);
+                                        Span(T off, T len):
+                                                offset(off),
+                                                length(len)
+                                        {
+                                        }
 
-                virtual Int64 onLoop();
+                                        T offset;
+                                        T length;
+                                };
+
+                        typedef Span<Time> TimeSpan;
+
+                        Analyzable();
+
+                        ~Analyzable();
+
+                        bool openFromFile(const std::string& filename);
+
+                        bool openFromMemory(const void* data,
+                                        std::size_t sizeInBytes);
+
+                        bool openFromStream(InputStream& stream);
+
+                        Time getDuration() const;
+
+                        TimeSpan getLoopPoints() const;
+
+                        void setLoopPoints(TimeSpan timePoints);
+
+                protected:
+                        virtual bool onGetData(Chunk& data);
+
+                        virtual void onSeek(Time timeOffset);
+
+                        virtual Int64 onLoop();
+
+                private:
+
+                        void initialize();
+
+                        Uint64 timeToSamples(Time position) const;
+
+                        Time samplesToTime(Uint64 samples) const;
+
+                        InputSoundFile     m_file;
+                        std::vector<Int16> m_samples;
+                        Mutex              m_mutex;
+                        Span<Uint64>       m_loopSpan;
+
         };
 }
 
