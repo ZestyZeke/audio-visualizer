@@ -9,7 +9,10 @@ namespace sf
 {
         Analyzable::Analyzable() :
                 m_file (),
+                /* 2.4
                 m_loopSpan (0, 0)
+                */
+                m_duration()
         {
         }
 
@@ -56,9 +59,13 @@ namespace sf
 
         Time Analyzable::getDuration() const
         {
+                /* 2.4
                 return m_file.getDuration();
+                */
+                return m_duration;
         }
 
+        /* 2.4
         Analyzable::TimeSpan Analyzable::getLoopPoints() const
         {
                 return TimeSpan(samplesToTime(m_loopSpan.offset),
@@ -110,12 +117,44 @@ namespace sf
                 if (oldStatus == Playing)
                         play();
         }
+        */
 
+        /* 2.4
         bool Analyzable::onGetData(SoundStream::Chunk& data)
         {
                 Lock lock(m_mutex);
 
                 std::size_t toFill = m_samples.size();
                 Uint64 currentOffset = m_file.getSampleOffset();
+                // stopped bc noticed wrong vers (2.4)
+        }
+        */
+
+        bool Analyzable::onGetData(SoundStream::Chunk& data)
+        {
+                Lock lock(m_mutex);
+
+                data.samples     = &m_samples[0];
+                data.sampleCount = static_cast<std::size_t>(m_file.read(
+                                        &m_samples[0], m_samples.size()));
+
+                return data.sampleCount == m_samples.size();
+        }
+
+        void Music::onSeek(Time timeOffset)
+        {
+                Lock lock(m_mutex);
+
+                m_file.seek(timeOffset);
+        }
+
+        void Music::initialize()
+        {
+                m_duration = m_file.getDuration();
+
+                m_samples.resize(m_file.getSampleRate() * m_file.getChannelCount());
+
+                SoundStream::initialize(m_file.getChannelCount(),
+                                m_file.getSampleRate());
         }
 }
