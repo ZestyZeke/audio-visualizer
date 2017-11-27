@@ -141,14 +141,14 @@ namespace sf
                 return data.sampleCount == m_samples.size();
         }
 
-        void Music::onSeek(Time timeOffset)
+        void Analyzable::onSeek(Time timeOffset)
         {
                 Lock lock(m_mutex);
 
                 m_file.seek(timeOffset);
         }
 
-        void Music::initialize()
+        void Analyzable::initialize()
         {
                 m_duration = m_file.getDuration();
 
