@@ -2,8 +2,10 @@
  * analyzable.cpp
  */
 
-#include "analyzable.hpp"
+#include "Analyzable.hpp"
 #include <fstream>
+#include <iostream>
+#include "math.h"
 
 namespace sf
 {
@@ -126,7 +128,8 @@ namespace sf
 
                 std::size_t toFill = m_samples.size();
                 Uint64 currentOffset = m_file.getSampleOffset();
-                // stopped bc noticed wrong vers (2.4)
+                Uint64 loopEnd = m_loopSppan.offset + m_loopSpan.length;
+                // left off here bc noticed version mismatch on github (2.4)
         }
         */
 
@@ -138,6 +141,18 @@ namespace sf
                 data.sampleCount = static_cast<std::size_t>(m_file.read(
                                         &m_samples[0], m_samples.size()));
 
+                //std::cout << "Going to print samples: ";
+                for (std::size_t i = 0; i < data.sampleCount / 1000
+                        /*data.sampleCount / 8000*/; i += 1000) {
+                    //std::cout << data.samples[i] << " ";
+                    for (auto j = 0; j < data.samples[i] / 10; j++)
+                        std::cout << "*";
+                    std::cout << std::endl;
+                }
+                std::cout << "\n";
+
+                //std::cout << "data.samples data.sampleCount\n";
+                //std::cout << *data.samples << " " << data.sampleCount << "\n";
                 return data.sampleCount == m_samples.size();
         }
 

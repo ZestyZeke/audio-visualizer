@@ -4,10 +4,28 @@
 #include <iostream>
 #include <SFML/Audio.hpp>
 #include <unistd.h>
-#include "analyzable.hpp"
+#include "Analyzable.hpp"
 
 int main(int argc, char **argv)
 {
+        sf::Analyzable song;
+        if (!song.openFromFile("./res/Kingpin.wav"))
+                return -1;
+        song.play();
+        usleep(song.getDuration().asMicroseconds());
+        song.pause();
+
+        std::cout << "Going to print random data about stream.\n";
+        std::cout << "getDuration() == " << song.getDuration().asSeconds()
+                << "\n";
+        std::cout << "getChannelCount() == " << song.getChannelCount() << "\n";
+        std::cout << "getSampleRate() == " << song.getSampleRate() << "\n";
+        std::cout << "getPitch() == " << song.getPitch() << "\n";
+        std::cout << "getVolume() == " << song.getVolume() << "\n";
+
+        song.stop();
+
+        /*
         sf::Music music;
         if (!music.openFromFile("res/Kingpin.wav"))
                 return -1;
@@ -30,5 +48,6 @@ int main(int argc, char **argv)
                 return -1;
         std::cout << "getDuration() == " << test.getDuration().asSeconds()
                 << "\n";
+                */
         return 0;
 }
