@@ -145,11 +145,11 @@ namespace sf
                 for (std::size_t i = 0; i < data.sampleCount / 1000
                         /*data.sampleCount / 8000*/; i += 1000) {
                     //std::cout << data.samples[i] << " ";
-                    for (auto j = 0; j < data.samples[i] / 10; j++)
+                    for (auto j = 0; j < data.samples[i] / 100; j++)
                         std::cout << "*";
                     std::cout << std::endl;
                 }
-                std::cout << "\n";
+                std::cout << std::endl;
 
                 //std::cout << "data.samples data.sampleCount\n";
                 //std::cout << *data.samples << " " << data.sampleCount << "\n";
