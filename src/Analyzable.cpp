@@ -6,6 +6,9 @@
 #include <fstream>
 #include <iostream>
 #include "math.h"
+#include <aquila/global.h>
+#include <aquila/transform/FftFactory.h>
+#include <aquila/tools/TextPlot.h>
 
 namespace sf
 {
@@ -141,15 +144,23 @@ namespace sf
                 data.sampleCount = static_cast<std::size_t>(m_file.read(
                                         &m_samples[0], m_samples.size()));
 
+
+
+
+
+                //@TODO: 
+                std::cout << data.sampleCount << std::endl;
+                //auto fft = Aquila::FftFactory::getFft()
+
                 //std::cout << "Going to print samples: ";
                 for (std::size_t i = 0; i < data.sampleCount / 1000
                         /*data.sampleCount / 8000*/; i += 1000) {
                     //std::cout << data.samples[i] << " ";
-                    for (auto j = 0; j < data.samples[i] / 100; j++)
-                        std::cout << "*";
-                    std::cout << std::endl;
+                    //for (auto j = 0; j < data.samples[i] / 100; j++)
+                        //std::cout << "*";
+                    //std::cout << std::endl;
                 }
-                std::cout << std::endl;
+                //std::cout << std::endl;
 
                 //std::cout << "data.samples data.sampleCount\n";
                 //std::cout << *data.samples << " " << data.sampleCount << "\n";

@@ -1,15 +1,9 @@
-cmake_minimum_required (VERSION 3.11)
+cmake_minimum_required (VERSION 3.10)
 project (AudioVis VERSION 0.1)
 
 set(CMAKE_CXX_STANDARD 11)
 
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+find_package(SFML REQUIRED network audio graphics window system)
+
 add_subdirectory(src)
-
-
-if(FALSE) # fake a block comment
-option(BUILD_TESTING "Build the testing tree" ON)
-if(BUILD_TESTING AND (PROJECT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR))
-    enable_testing()
-    add_subdirectory(test)
-endif()
-endif() # end fake block comment
