@@ -26,10 +26,14 @@ namespace Viz {
     const double MAX_SAMPLE);
 
     //static const std::size_t FFT_SIZE = 1024;
-    static const std::size_t FFT_SIZE = 28;
+    //static const std::size_t FFT_SIZE = 28;
+    //static const std::size_t FFT_SIZE = 256;
+    static const std::size_t FFT_SIZE = 200;
 
     static const std::size_t NUM_ROWS = 100;
-
+    static std::size_t DELAY;
+    //@TODO: need to downmix the channels somehow...
+    void applyFft(std::vector<Aquila::SampleType> sampleBuffer);
 };
 
 
