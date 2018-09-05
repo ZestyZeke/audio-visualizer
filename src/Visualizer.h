@@ -7,6 +7,7 @@
 
 #include <string>
 #include <aquila/global.h>
+#include <fftw3.h>
 
 
 /*
@@ -33,7 +34,14 @@ namespace Viz {
     static const std::size_t NUM_ROWS = 100;
     static std::size_t DELAY;
     //@TODO: need to downmix the channels somehow...
-    void applyFft(std::vector<Aquila::SampleType> sampleBuffer);
+    std::vector<double> applyFft(std::vector<Aquila::SampleType> sampleBuffer, fftw_complex* in,
+    fftw_complex *out, fftw_plan plan);
+
+    template <class T>
+    T getMax(std::vector<T> vec);
+
+    template <class T>
+    T getMin(std::vector<T> vec);
 };
 
 

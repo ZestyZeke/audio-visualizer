@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <chrono>
 #include <thread>
+#include <fftw3.h>
 
 std::vector<std::size_t> Viz::normalize(std::vector<Aquila::SampleType> sampleBuffer, const double MIN_SAMPLE,
                                                const double MAX_SAMPLE) {
@@ -76,6 +77,10 @@ void Viz::loadFile(std::string fileName) {
     const std::size_t AUDIO_LENGTH = wav.getAudioLength();
 
     DELAY = (AUDIO_LENGTH * FFT_SIZE) / NUM_SAMPLES;
+    //std::cout << "DELAY1 == " << DELAY << "milliseconds" << std::endl;
+    //DELAY = (FFT_SIZE * wav.getBytesPerSec()) / wav.getBytesPerSample();
+    const auto MILLISECONDS_PER_SECONDS = 1000;
+    DELAY = (FFT_SIZE * wav.getBytesPerSample() * MILLISECONDS_PER_SECONDS) / wav.getBytesPerSec();
     std::cout << "DELAY == " << DELAY << " milliseconds" << std::endl;
     std::cout << "AUDIO_LENGTH == " << AUDIO_LENGTH << " milliseconds" << std::endl;
     std::cout << "FFT_SIZE == " << FFT_SIZE << " samples" << std::endl;
@@ -91,6 +96,12 @@ void Viz::loadFile(std::string fileName) {
             MAX_SAMPLE = sample;
     }
 
+    // prepare stuff for fft
+    fftw_complex *in, *out;
+    in = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * FFT_SIZE));
+    out = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * FFT_SIZE));
+    fftw_plan plan = fftw_plan_dft_1d(FFT_SIZE, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+
     // now begin playing music in background.
     sf::Analyzable song;
     if (!song.openFromFile(fileName))
@@ -102,9 +113,10 @@ void Viz::loadFile(std::string fileName) {
         for (std::size_t j = i * FFT_SIZE; j < (i + 1) * FFT_SIZE; j++) {
             sampleBuffer.push_back(wav.sample(j));
         }
-        applyFft(sampleBuffer);
+        std::vector<double> fftResult = applyFft(sampleBuffer, in, out, plan);
         //@TODO: grab samples and do fft on them...
-        displayToScreen(sampleBuffer, MIN_SAMPLE, MAX_SAMPLE);
+        //displayToScreen(sampleBuffer, MIN_SAMPLE, MAX_SAMPLE);
+        displayToScreen(fftResult, getMin(fftResult), getMax(fftResult));
         //std::cout << "iter: " << i << std::endl;
     }
     auto now = std::chrono::system_clock::now();
@@ -112,6 +124,52 @@ void Viz::loadFile(std::string fileName) {
 
 }
 
-void Viz::applyFft(std::vector<Aquila::SampleType> sampleBuffer) {
+std::vector<double> Viz::applyFft(std::vector<Aquila::SampleType> sampleBuffer, fftw_complex *in, fftw_complex *out,
+fftw_plan plan) {
+    // setup
+    const std::size_t N = sampleBuffer.size();
+    /*
+    fftw_complex *in, *out;
+    in = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * N));
+    out = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * N));
+    fftw_plan plan = fftw_plan_dft_1d(N, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+     */
 
+    // copy dynamic vals
+    for (int i = 0; i < N; i++) {
+        in[i][0] = sampleBuffer[i];
+        in[i][1] = 0;
+    }
+
+    // execute
+    fftw_execute(plan);
+
+    // get values and pass them back.
+    // don't care about complex values.
+    std::vector<double> result (N, 0);
+    for (int i = 0; i < N; i++) {
+        result[i] = out[i][0];
+        //std::cout << "result[" << i << "] == " << result[i] << std::endl;
+    }
+    return result;
+}
+
+template <class T>
+T Viz::getMax(std::vector<T> vec) {
+    T max = vec[0];
+    for (auto v : vec) {
+        if (v > max)
+            max = v;
+    }
+    return max;
+}
+
+template <class T>
+T Viz::getMin(std::vector<T> vec) {
+    T min = vec[0];
+    for (auto v : vec) {
+        if (v < min)
+            min = v;
+    }
+    return min;
 }

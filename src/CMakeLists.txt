@@ -6,7 +6,7 @@ add_executable(analyzable
 
 target_link_libraries(analyzable ${SFML_LIBRARIES} ${SFML_DEPENDENCIES}
         Aquila)
-#target_link_libraries(analyzable fftw3)
+target_link_libraries(analyzable fftw3)
 #target_link_libraries(analyzable Aquila)
 
 file(COPY ${PROJECT_SOURCE_DIR}/res/Kingpin.wav
