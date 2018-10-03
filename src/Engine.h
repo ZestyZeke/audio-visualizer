@@ -7,7 +7,10 @@
 
 #include <string>
 #include <aquila/source/WaveFile.h>
+#include <chrono>
+#include <fstream>
 #include "Analyzer.h"
+#include "Visualizer.h"
 
 class Engine {
 public:
@@ -17,9 +20,11 @@ private:
     void loop();
     std::size_t _NUM_SAMPLES;
     std::size_t _FFT_SIZE;
-    std::size_t _DELAY;
+    std::chrono::milliseconds _DELAY;
     Aquila::WaveFile _wav;
     Analyzer _analyzer;
+    Visualizer _visualizer;
+    std::ofstream _log;
 };
 
 
