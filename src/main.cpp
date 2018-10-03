@@ -4,7 +4,6 @@
 #include <iostream>
 #include <SFML/Audio.hpp>
 #include <unistd.h>
-#include "Analyzable.hpp"
 #include "Visualizer.h"
 #include <fftw3.h>
 #include <aquila/global.h>
@@ -12,11 +11,15 @@
 #include <aquila/tools/TextPlot.h>
 #include <aquila/source/WaveFile.h>
 #include <aquila/transform/FftFactory.h>
+#include "Engine.h"
 
 int main(int argc, char **argv)
 {
-    // calculate the FFT
+    //Viz::loadFile("444.wav");
 
-    Viz::loadFile("444.wav");
+    const std::string FILE_NAME = "444.wav";
+    Engine engine(FILE_NAME);
+    engine.run();
+
     return 0;
 }

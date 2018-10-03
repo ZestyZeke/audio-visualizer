@@ -3,7 +3,6 @@
 //
 
 #include "Visualizer.h"
-#include "Analyzable.hpp"
 #include <aquila/global.h>
 #include <aquila/source/WaveFile.h>
 #include <aquila/transform/FftFactory.h>
@@ -17,6 +16,7 @@
 #include <fftw3.h>
 #include <cmath>
 #include <fstream>
+#include <SFML/Audio/Music.hpp>
 
 void logOutput(std::ofstream& log, std::vector<double> buffer) {
     for (auto b : buffer) {
@@ -111,13 +111,17 @@ void Viz::loadFile(std::string fileName) {
     fftw_complex *out;
     in = static_cast<double *>(fftw_malloc(sizeof(double) * FFT_SIZE));
     out = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * FFT_SIZE));
-    fftw_plan plan = fftw_plan_dft_r2c_1d(FFT_SIZE, in, out, FFTW_ESTIMATE);
+    fftw_plan plan = fftw_plan_dft_r2c_1d(FFT_SIZE, in, out, FFTW_MEASURE);
 
     // pre calculate window function values
     calcWindowVals(FFT_SIZE);
 
     // now begin playing music in background.
-    sf::Analyzable song;
+    //sf::Analyzable song;
+    //if (!song.openFromFile(fileName))
+        //return;
+    //song.play();
+    sf::Music song;
     if (!song.openFromFile(fileName))
         return;
     song.play();
