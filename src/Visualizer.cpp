@@ -18,33 +18,6 @@
 #include <fstream>
 #include <SFML/Audio/Music.hpp>
 
-void Viz::logOutput(std::ofstream& log, std::vector<double> buffer) {
-    for (auto b : buffer) {
-        log << b << ' ';
-    }
-    log << '\n';
-}
-
-template <class T>
-T Viz::getMax(std::vector<T> vec) {
-    T max = vec[0];
-    for (auto v : vec) {
-        if (v > max)
-            max = v;
-    }
-    return max;
-}
-
-template <class T>
-T Viz::getMin(std::vector<T> vec) {
-    T min = vec[0];
-    for (auto v : vec) {
-        if (v < min)
-            min = v;
-    }
-    return min;
-}
-
 Visualizer::Visualizer() {
 
 }

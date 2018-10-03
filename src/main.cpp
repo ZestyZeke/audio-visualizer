@@ -15,8 +15,6 @@
 
 int main(int argc, char **argv)
 {
-    //Viz::loadFile("444.wav");
-
     const std::string FILE_NAME = "444.wav";
     Engine engine(FILE_NAME);
     engine.run();
