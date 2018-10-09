@@ -12,12 +12,18 @@
 #include "Analyzer.h"
 #include "Visualizer.h"
 
+// hardcoded constants, adjusted as necessary
+#define NUM_DISPLAY_BINS 500
+#define FFT_SIZE 1024
+
 class Engine {
 public:
     Engine(const std::string fileName);
     void run();
 private:
     void loop();
+    std::chrono::milliseconds balanceTime(const std::chrono::milliseconds currDebt,
+            const std::chrono::milliseconds timeElapsed);
     std::size_t _NUM_SAMPLES;
     std::size_t _FFT_SIZE;
     std::chrono::milliseconds _DELAY;

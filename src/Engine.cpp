@@ -11,7 +11,7 @@
 #include <thread>
 
 Engine::Engine(const std::string fileName)
-:_FFT_SIZE {1024}, _wav {fileName}, _analyzer {_FFT_SIZE}, _log{"log.txt"}
+:_FFT_SIZE {FFT_SIZE}, _wav {fileName}, _analyzer {_FFT_SIZE}, _log{"log.txt"}
 {
     // extract useful info from wav
     _NUM_SAMPLES = _wav.getSamplesCount();
@@ -41,6 +41,7 @@ void Engine::run() {
 
 void Engine::loop() {
     using namespace std::chrono;
+    milliseconds debt {0};
     std::vector<Aquila::SampleType> sampleBuffer;
     for (std::size_t i = 0; i < std::floor(_NUM_SAMPLES / _FFT_SIZE); i++) {
         const auto THEN = system_clock::now();
@@ -52,19 +53,40 @@ void Engine::loop() {
 
         std::vector<double> fftResult = _analyzer.applyFft(sampleBuffer);
 
-        //@TODO: display to screen stuff.
-        // the getMin, getMax stuff needs to be replaced with a more absolute solution.
-        //displayToScreen(fftResult, getMin(fftResult), getMax(fftResult);
-        _visualizer.displayToScreen(fftResult, 0, 2056); // @TODO: this is hardcoded
-        //@TODO: use actual vals, rather than 0 and 100
+        constexpr int MAX = NUM_DISPLAY_BINS;
+        _visualizer.displayToScreen(fftResult, 0, MAX);
 
         const auto NOW = system_clock::now();
         const milliseconds TIME_ELAPSED = duration_cast<milliseconds>(NOW - THEN);
 
-        if (TIME_ELAPSED < _DELAY) {
-            std::this_thread::sleep_for(_DELAY - TIME_ELAPSED);
-        } else {
-            _log << "TOOK TOO LONG by this amount (milliseconds): " << (TIME_ELAPSED - _DELAY).count() << std::endl;
+        debt = balanceTime(debt, TIME_ELAPSED);
+    }
+    std::cout << "final debt (ms): " << debt.count() << std::endl;
+}
+
+std::chrono::milliseconds Engine::balanceTime(const std::chrono::milliseconds currDebt,
+        const std::chrono::milliseconds timeElapsed) {
+    using namespace std::chrono;
+
+    if (timeElapsed < _DELAY) {
+        // have some time to spare after passing through analyzer and visualizer
+        // can use this time to pay off debt, or to just sleep the remaining time.
+        const milliseconds AVAILABLE_TIME = _DELAY - timeElapsed;
+
+        // check if debt can be payed this cycle
+        if (currDebt < AVAILABLE_TIME) {
+            std::this_thread::sleep_for(AVAILABLE_TIME - currDebt);
+            return 0ms;
         }
+
+        // final case: currDebt > AVAILABLE_TIME
+        // pay back debt by not sleeping, and update the currDebt
+        return currDebt - AVAILABLE_TIME;
+
+    } else {
+        // don't have time to spare
+        // adjust debt for falling behind
+        const milliseconds OVERFLOW = timeElapsed - _DELAY;
+        return currDebt + OVERFLOW;
     }
 }

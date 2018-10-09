@@ -11,10 +11,17 @@
 #include <vector>
 #include <aquila/global.h>
 
+// hardcoded constants,
+// adjusted as necessary
+#define WINDOW_ALPHA 0.16
+#define EWMA_ALPHA 0.3
+
 class Analyzer {
 public:
+    Analyzer() = delete;
     Analyzer(const std::size_t fftSize);
 
+    //@TODO: rename to analyze or something more generic.
     std::vector<double> applyFft(const std::vector<Aquila::SampleType> sampleBuffer);
 
 private:
@@ -32,6 +39,12 @@ private:
     std::vector<double> _windowVals;
 
     static constexpr double PI {3.141592653589793};
+
+    void applyEwma(std::vector<double>& currBuffer);
+
+    void scaleLog(std::vector<double>& currBuffer);
+
+    std::vector<double> _prevVals {};
 };
 
 

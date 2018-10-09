@@ -18,10 +18,6 @@
 #include <fstream>
 #include <SFML/Audio/Music.hpp>
 
-Visualizer::Visualizer() {
-
-}
-
 std::vector<std::size_t> Visualizer::normalize(std::vector<double> buffer, const double MIN, const double MAX) {
     std::vector<std::size_t> normalizedBuffer;
     const double step = (MAX - MIN) / static_cast<double>(_NUM_ROWS);

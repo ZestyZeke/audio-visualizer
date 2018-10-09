@@ -9,10 +9,9 @@
 #include <aquila/global.h>
 #include <fftw3.h>
 
-
- //@TODO: idea for syncing - don't know how long FFT process takes. So start
- //@TODO: a timer, or record the time when process begins. After everything calculated,
- //@TODO: get time, and note difference. Sleep the extra. boom.
+// hardcoded constants,
+// adjusted as necessary
+#define NUM_ROWS 100
 
 namespace Viz {
     void logOutput(std::ofstream& log, std::vector<double> buffer);
@@ -26,10 +25,10 @@ namespace Viz {
 
 class Visualizer {
 public:
-    Visualizer();
+    Visualizer() = default;
     void displayToScreen(std::vector<double> buffer, const double MIN, const double MAX);
 private:
-    const std::size_t _NUM_ROWS = 100;
+    const std::size_t _NUM_ROWS = NUM_ROWS;
 
     std::vector<std::size_t> normalize(std::vector<double> buffer, const double MIN, const double MAX);
 };

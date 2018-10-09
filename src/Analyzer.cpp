@@ -23,7 +23,7 @@ void Analyzer::calcWindowVals() {
 }
 
 double Analyzer::windowBlack(const std::size_t i, const std::size_t N) {
-    constexpr double ALPHA = .16; // hardcoded
+    constexpr double ALPHA = WINDOW_ALPHA;
     constexpr double TERM1 = (1 - ALPHA) / 2;
     const double     TERM2 = 0.5 * cos((2 * PI * i) / (N - 1));
     const double     TERM3 = 0.5 * ALPHA * cos((4 * PI * i) / (N - 1));
@@ -55,8 +55,42 @@ std::vector<double> Analyzer::applyFft(const std::vector<Aquila::SampleType> sam
         power[i] = std::abs(_out[i][0]);
     }
 
+    // @TODO: find out if scaling factor needs to be undone... or applied.
+
+    // apply ewma
+    applyEwma(power);
+
+    // do log conversion
+    scaleLog(power);
+
     // squash so that displayable on screen.
     return squashBufferByFour(power);
+}
+
+void Analyzer::applyEwma(std::vector<double> &currBuffer) {
+
+    // check if first iteration
+    if (_prevVals.size() == 0) {
+        _prevVals = currBuffer;
+        return;
+    }
+
+    constexpr double ALPHA = EWMA_ALPHA;
+    for (int i = 0; i < currBuffer.size() && i < _prevVals.size(); i++) {
+        // apply exponential weighted moving average
+        currBuffer[i] = ALPHA * _prevVals[i] + (1 - ALPHA) * currBuffer[i];
+        // update prevVals for next time this function is called
+        _prevVals[i] = currBuffer[i];
+    }
+}
+
+void Analyzer::scaleLog(std::vector<double> &currBuffer) {
+    constexpr double REF = 1.0;
+    constexpr double BASE = 10.0;
+    for (double& el : currBuffer) {
+        const double TERM = (el * el) / (REF * REF);
+        el = 10 * std::log(TERM) / std::log(BASE);
+    }
 }
 
 //@TODO: make more... generic to say the least.
