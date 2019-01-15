@@ -13,7 +13,7 @@
 #include "Visualizer.h"
 
 // hardcoded constants, adjusted as necessary
-#define NUM_DISPLAY_BINS 500
+#define MAX_HEIGHT 500
 #define FFT_SIZE 1024
 
 class Engine {

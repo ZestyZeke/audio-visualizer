@@ -43,7 +43,11 @@ void Engine::loop() {
     using namespace std::chrono;
     milliseconds debt {0};
     std::vector<Aquila::SampleType> sampleBuffer;
-    for (std::size_t i = 0; i < std::floor(_NUM_SAMPLES / _FFT_SIZE); i++) {
+    for (std::size_t i = 0;
+         i < std::floor(_NUM_SAMPLES / _FFT_SIZE)
+         && _visualizer.isWindowOpen();
+         i++) {
+
         const auto THEN = system_clock::now();
 
         sampleBuffer.resize(_FFT_SIZE, 0);
@@ -53,7 +57,7 @@ void Engine::loop() {
 
         std::vector<double> fftResult = _analyzer.applyFft(sampleBuffer);
 
-        constexpr int MAX = NUM_DISPLAY_BINS;
+        constexpr int MAX = MAX_HEIGHT;
         _visualizer.displayToScreen(fftResult, 0, MAX);
 
         const auto NOW = system_clock::now();

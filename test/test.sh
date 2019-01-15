@@ -1,15 +1,8 @@
 #!/bin/bash
 
 # Bash script for testing this program
+BUILD_DIR=audio-build
 
-rm -rf build
-
-mkdir build && cd build
-
-cmake ..
-
-make
-
-cd src
+cd ../"$BUILD_DIR"/src
 
 ./analyzable
