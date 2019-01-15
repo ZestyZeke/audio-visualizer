@@ -17,42 +17,65 @@
 #define RESOLUTION_Y 600
 #define WINDOW_TITLE "Audio Visualizer"
 
-//@TODO: get rid of?
-namespace Viz {
-    void logOutput(std::ofstream& log, std::vector<double> buffer);
-
-    template <class T>
-    T getMax(std::vector<T> vec);
-
-    template <class T>
-    T getMin(std::vector<T> vec);
-};
-
+///
+/// \class Visualizer
+///
+/// \brief Responsible for taking buffers and displaying them in an SFML window
 class Visualizer {
 public:
+
+    ///
+    /// \brief Constructor
     Visualizer() :_color(sf::Color::Cyan),
     _window(sf::VideoMode(RESOLUTION_X, RESOLUTION_Y), WINDOW_TITLE) { }
 
+    ///
+    /// \brief Destructor
+    ~Visualizer() = default;
+
+    ///
+    /// \brief public access point for taking fft transformed samples and displaying on screen
+    /// \param buffer buffer to use for frequency vs power information
+    /// \param minHeight relative to bottom of window
+    /// \param maxHeight relative to bottom of window
     void displayToScreen(std::vector<double> buffer, const double minHeight, const double maxHeight);
 
+    ///
+    /// \returns true if window is currently open
     inline bool isWindowOpen() { return _window.isOpen(); }
 
 private:
-    // transforms a vector of bins vs power
-    // to bins vs 'ith row'
-    // kind of like a stepped height
+    ///
+    /// \brief transforms a vector of frequency bins vs power into frequency bins vs vertical resolution bins
+    /// \param buffer vector to transform
+    /// \param minHeight relative to bottom of window
+    /// \param maxHeight relative to bottom of window
+    /// \return normalized buffer
     std::vector<std::size_t> normalize(std::vector<double> buffer, const double minHeight, const double maxHeight);
 
+    ///
+    /// \brief compares the buffer's size to that of _rectangleList and reconstructs the list if necessary
+    /// \param size the to-be-transformed buffer's size
     void checkBufferSize(const std::size_t size);
 
+    ///
+    /// \brief checks to see if an event has occured
     void checkEvent();
 
+    ///
+    /// \brief number of vertical bins to divide the window into
     const std::size_t _NUM_ROWS = NUM_ROWS;
 
+    ///
+    /// \brief the window to use for rendering shapes
     sf::RenderWindow _window;
 
+    ///
+    /// \brief the color to use for each rectangle
     const sf::Color _color;
 
+    ///
+    /// \brief the list of rectangles to be drawn onto the window
     std::vector<sf::VertexArray> _rectangleList;
 };
 

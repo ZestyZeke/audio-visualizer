@@ -37,8 +37,6 @@ std::vector<std::size_t> Visualizer::normalize(std::vector<double> buffer, const
 }
 
 void Visualizer::displayToScreen(std::vector<double> buffer, const double minHeight, const double maxHeight) {
-    //@TODO: rethink min / max thing
-
     checkEvent();
 
     std::vector<std::size_t> normalizedBuffer = normalize(buffer, minHeight, maxHeight);
@@ -53,7 +51,7 @@ void Visualizer::displayToScreen(std::vector<double> buffer, const double minHei
         const std::size_t numRows = normalizedBuffer[i];
         sf::VertexArray& rectangle = _rectangleList[i];
 
-        const float TOP = _window.getSize().y - numRows * ROW_HEIGHT; //@TODO: needs to be a safer cast...
+        const float TOP = static_cast<float>(_window.getSize().y - numRows * ROW_HEIGHT);
         // only update top vertices
         rectangle[0].position.y = TOP;
         rectangle[1].position.y = TOP;
