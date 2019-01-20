@@ -30,13 +30,8 @@ void Engine::run() {
         return;
     }
     song.play();
-    const auto THEN = std::chrono::system_clock::now();
 
     loop();
-
-    const auto NOW = std::chrono::system_clock::now();
-    std::cout << "seconds passed: " << std::chrono::
-    duration_cast<std::chrono::seconds>(NOW - THEN).count() << std::endl;
 }
 
 void Engine::loop() {
@@ -65,7 +60,6 @@ void Engine::loop() {
 
         debt = balanceTime(debt, TIME_ELAPSED);
     }
-    std::cout << "final debt (ms): " << debt.count() << std::endl;
 }
 
 std::chrono::milliseconds Engine::balanceTime(const std::chrono::milliseconds currDebt,

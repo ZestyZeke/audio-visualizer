@@ -15,8 +15,11 @@
 
 int main(int argc, char **argv)
 {
-    const std::string FILE_NAME = "444.wav";
-    Engine engine(FILE_NAME);
+    std::string fileName {"444.wav"};
+    if (argc == 2) {
+        fileName = std::string(argv[1]);
+    }
+    Engine engine(fileName);
     engine.run();
 
     return 0;
