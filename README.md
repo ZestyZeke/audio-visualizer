@@ -4,11 +4,12 @@ Summary
 -------
 This is an audio visualizer written in C++.
 Currently it only works on wav files. They
-must be placed in the 'res/' folder, and 
+must be placed in the `res/` folder, and 
 need to be passed as arguments to the `test.sh` script.
 
 Usage
 -----
+Create a `res/` folder at the top level.
 Switch to the `test/` folder. In there, run
 `install.sh` and then `test.sh` with the given
 file name.
