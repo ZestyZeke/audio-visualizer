@@ -15,7 +15,7 @@ cd "$BUILD_DIR"/src
 # -------------------------------------------------------
 # arguments should provide filename
 # -------------------------------------------------------
-if [ "$#" -ge 3]; then
+if [ "$#" -ge 2 ]; then
     echo "Illegal number of parameters"
     echo "Usage: $0 <file-name-without-path>"
 fi
@@ -23,10 +23,10 @@ fi
 # -------------------------------------------------------
 # run program
 # -------------------------------------------------------
-if [ "$#" -eq 2]; then
+if [ "$#" -eq 1 ]; then
     ./analyzable $1
 fi
 
-if [ "$#" -eq 1]; then
+if [ "$#" -eq 0 ]; then
     ./analyzable
 fi

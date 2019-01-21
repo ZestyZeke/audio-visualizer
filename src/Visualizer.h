@@ -63,6 +63,10 @@ private:
     void checkEvent();
 
     ///
+    /// \brief for when the color to display has changed
+    void updateColors();
+
+    ///
     /// \brief number of vertical bins to divide the window into
     const std::size_t _NUM_ROWS = NUM_ROWS;
 
@@ -72,7 +76,7 @@ private:
 
     ///
     /// \brief the color to use for each rectangle
-    const sf::Color _color;
+    sf::Color _color;
 
     ///
     /// \brief the list of rectangles to be drawn onto the window

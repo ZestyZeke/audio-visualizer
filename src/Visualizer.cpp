@@ -101,7 +101,31 @@ void Visualizer::checkEvent() {
     while (_window.pollEvent(event)) {
         if (event.type == sf::Event::Closed) {
             _window.close();
+
+        } else if (event.type == sf::Event::KeyReleased) {
+            if (event.key.code == sf::Keyboard::Space) {
+                updateColors();
+            }
         }
     }
     //@TODO: add resizing and such...
+}
+
+void Visualizer::updateColors() {
+
+    // update color preference
+    if (_color == sf::Color::Cyan) {
+        _color = sf::Color::Green;
+    } else if (_color == sf::Color::Green) {
+        _color = sf::Color::Magenta;
+    } else if (_color == sf::Color::Magenta) {
+        _color = sf::Color::Cyan;
+    }
+
+    // update the colors in the _rectangleList
+    for (sf::VertexArray& rectangle : _rectangleList) {
+        for (int i = 0; i < 4; i++) {
+            rectangle[i].color = _color;
+        }
+    }
 }
