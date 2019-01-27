@@ -56,8 +56,6 @@ std::vector<double> Analyzer::applyFft(const std::vector<Aquila::SampleType> sam
         power[i] = std::abs(_out[i][0]);
     }
 
-    // @TODO: find out if scaling factor needs to be undone... or applied.
-
     // apply ewma
     applyEwma(power);
 
