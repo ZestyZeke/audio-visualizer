@@ -21,10 +21,44 @@ if [ "$#" -ge 2 ]; then
 fi
 
 # -------------------------------------------------------
+# for displaying help message and exiting
+# -------------------------------------------------------
+display_help() {
+    filename=$(basename $0)
+    echo "Usage: $filename [help|-h|--help|--list|filename]"
+    exit 1
+}
+
+
+# -------------------------------------------------------
+# for listing available files to play
+# -------------------------------------------------------
+list_files() {
+    echo "$PWD"
+    list=$(find ../../res -name '*.wav' -exec basename {} \;)
+    for song in "$list"
+    do
+        echo "$song"
+    done
+    exit 1
+}
+
+# -------------------------------------------------------
 # run program
 # -------------------------------------------------------
 if [ "$#" -eq 1 ]; then
-    ./analyzable $1
+    if [[ ( $1 == "help" ) || ( $1 == "-h" ) || ( $1 == "--help" ) ]]
+    then
+        display_help
+    fi
+
+    if [[ ( $1 == "--list" ) ]]
+    then
+        list_files
+    fi
+
+    echo "here: $1"
+    gdb ./analyzable $1
 fi
 
 if [ "$#" -eq 0 ]; then
