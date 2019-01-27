@@ -19,8 +19,8 @@ CXX_COMPILER=/usr/bin/clang++-6.0
 # -------------------------------------------------------
 # this will set the appropriate compile flags 
 # -------------------------------------------------------
-#CMAKE_FLAGS=Release
-CMAKE_FLAGS=Debug
+CMAKE_FLAGS=Release
+#CMAKE_FLAGS=Debug
 
 # -------------------------------------------------------
 # invoke cmake to setup build files

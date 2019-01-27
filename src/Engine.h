@@ -13,8 +13,10 @@
 #include "Visualizer.h"
 
 // hardcoded constants, adjusted as necessary
-#define MAX_HEIGHT 500
-#define FFT_SIZE 1024
+//#define MAX_HEIGHT 500
+#define MAX_HEIGHT 300 
+//#define FFT_SIZE 1024
+#define FFT_SIZE 2048
 
 ///
 /// \class Engine

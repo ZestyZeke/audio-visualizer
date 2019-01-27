@@ -23,7 +23,8 @@ namespace windowFunctions {
 
     ///
     /// \brief alpha constant to use for windowing functions
-    constexpr double WINDOW_ALPHA = 0.16;
+    //constexpr double WINDOW_ALPHA = 0.16;
+    constexpr double WINDOW_ALPHA = 0.60;
 
     ///
     /// \brief applys the Hanning window function
