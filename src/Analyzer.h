@@ -55,7 +55,7 @@ public:
     ///
     /// \brief Constructor
     /// \param fftSize the size of the FastFourierTransform
-    Analyzer(const std::size_t fftSize);
+    Analyzer(const std::size_t fftSize, const double samplingRate);
 
     ///
     /// \brief top level function for applying a fast fourier transform on a buffer of samples
@@ -63,7 +63,21 @@ public:
     /// \return a vector of doubles representing frequency vs power
     std::vector<double> applyFft(const std::vector<Aquila::SampleType> sampleBuffer);
 
+    /// \brief sets the min and max samples of the song
+    /// \param min the minimum sample
+    /// \param max the maximum sample
+    void setExtrema(const double min, const double max);
+
 private:
+
+    /// \brief generates the freq bin
+    /// \return a vector of frequencies representing the x-axis of the spectrum
+    std::vector<double> generateFrequencyAxis();
+
+    /// \brief puts fft results into a spectrum that is log-scaled w respect to frequency
+    /// \param buffer the buffer to squash into frequency bins for display
+    /// \return a vector of the samples transformed into a spectrum
+    std::vector<double> spectrumize(const std::vector<double> buffer);
 
     ///
     /// \brief precomputes the _windowVals array to use for windowing,
@@ -115,6 +129,21 @@ private:
     /// \brief stores buffer values from previous pass-through. Used to
     /// perform EWMA
     std::vector<double> _prevVals {};
+
+    ///
+    /// \brief these values represent the sides of each frequency bin
+    /// will be used to place fftResults into a frequency bin for visualizing
+    std::vector<double> _freqBin;
+
+    ///
+    /// \brief the sample rate of the song
+    /// used for frequency calculations
+    double _sampleRate;
+
+    //@TODO: get rid of or proper documentation
+    double _minSample;
+    double _maxSample;
+
 };
 
 

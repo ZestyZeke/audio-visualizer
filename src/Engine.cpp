@@ -11,14 +11,15 @@
 #include <thread>
 
 Engine::Engine(const std::string fileName)
-:_FFT_SIZE {FFT_SIZE}, _wav {fileName}, _analyzer {_FFT_SIZE}, _log{"log.txt"}
+:_FFT_SIZE {FFT_SIZE}, _wav {fileName},
+_analyzer {_FFT_SIZE, _wav.getSampleFrequency()},
+_log{"log.txt"}
 {
     // extract useful info from wav
     _NUM_SAMPLES = _wav.getSamplesCount();
     const std::size_t AUDIO_LENGTH = _wav.getAudioLength();
     const double delay = std::floor((AUDIO_LENGTH * _FFT_SIZE) / _NUM_SAMPLES);
     _DELAY = std::chrono::milliseconds(static_cast<int>(delay));
-
 }
 
 void Engine::run() {
@@ -39,11 +40,10 @@ void Engine::loop() {
     milliseconds debt {0};
     std::vector<Aquila::SampleType> sampleBuffer;
     for (std::size_t i = 0;
-         i < std::floor(_NUM_SAMPLES / _FFT_SIZE)
-         && _visualizer.isWindowOpen();
+         i < std::floor(_NUM_SAMPLES / _FFT_SIZE) && _visualizer.isWindowOpen();
          i++) {
 
-        const auto THEN = system_clock::now();
+        const auto START = system_clock::now();
 
         sampleBuffer.resize(_FFT_SIZE, 0);
         auto it = sampleBuffer.begin();
@@ -55,8 +55,8 @@ void Engine::loop() {
         constexpr int MAX = MAX_HEIGHT;
         _visualizer.displayToScreen(fftResult, 0, MAX);
 
-        const auto NOW = system_clock::now();
-        const milliseconds TIME_ELAPSED = duration_cast<milliseconds>(NOW - THEN);
+        const auto END = system_clock::now();
+        const milliseconds TIME_ELAPSED = duration_cast<milliseconds>(END - START);
 
         debt = balanceTime(debt, TIME_ELAPSED);
     }

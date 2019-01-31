@@ -82,6 +82,9 @@ private:
     ///
     /// \brief log for debugging
     std::ofstream _log;
+
+    Aquila::SampleType _max;
+    Aquila::SampleType _min;
 };
 
 

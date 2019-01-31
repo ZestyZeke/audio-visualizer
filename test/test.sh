@@ -58,7 +58,7 @@ if [ "$#" -eq 1 ]; then
     fi
 
     echo "here: $1"
-    gdb ./analyzable $1
+    ./analyzable $1
 fi
 
 if [ "$#" -eq 0 ]; then

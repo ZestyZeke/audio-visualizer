@@ -12,10 +12,7 @@
 
 // hardcoded constants,
 // adjusted as necessary
-//#define NUM_ROWS 100
 #define NUM_ROWS 100
-//#define RESOLUTION_X 800
-//#define RESOLUTION_Y 600
 #define RESOLUTION_X 1920
 #define RESOLUTION_Y 1080 
 #define WINDOW_TITLE "Audio Visualizer"

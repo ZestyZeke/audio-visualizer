@@ -28,7 +28,7 @@ std::vector<std::size_t> Visualizer::normalize(std::vector<double> buffer, const
             const bool IN_INTERVAL = minHeight + i * step <= sample &&
                     sample <= minHeight + (i + 1) * step;
             if (IN_INTERVAL) {
-                normalizedBuffer.push_back(i); // @TODO: kind of gross - clean up later
+                normalizedBuffer.push_back(i);
                 break;
             }
         }
@@ -108,7 +108,6 @@ void Visualizer::checkEvent() {
             }
         }
     }
-    //@TODO: add resizing and such...
 }
 
 void Visualizer::updateColors() {

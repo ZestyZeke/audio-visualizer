@@ -3,7 +3,10 @@
 //
 
 #include <cmath>
+#include <iostream>
+#include <array>
 #include "Analyzer.h"
+#include <limits>
 
 double windowFunctions::windowBlack(const std::size_t i, const std::size_t N) {
     constexpr double ALPHA = WINDOW_ALPHA;
@@ -17,14 +20,18 @@ double windowFunctions::windowHanning(const std::size_t i, const std::size_t N) 
     return 0.5 * (1 - cos((2 * PI * i) / (N - 1)));
 }
 
-Analyzer::Analyzer(const std::size_t fftSize) {
+Analyzer::Analyzer(const std::size_t fftSize, const double samplingRate) {
     _FFT_SIZE = fftSize;
     _in = static_cast<double *>(fftw_malloc(sizeof(double) * _FFT_SIZE));
     _out = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * _FFT_SIZE));
     _plan = fftw_plan_dft_r2c_1d(static_cast<int>(_FFT_SIZE),
             _in, _out, FFTW_MEASURE);
 
+    _sampleRate = samplingRate;
+
+    // set up containers that can be pre-calculated
     calcWindowVals();
+    _freqBin = generateFrequencyAxis();
 }
 
 void Analyzer::calcWindowVals() {
@@ -33,6 +40,11 @@ void Analyzer::calcWindowVals() {
     for (std::size_t i = 0; i < _FFT_SIZE; i++) {
         _windowVals[i] = windowFunc(i, _FFT_SIZE);
     }
+}
+
+void Analyzer::setExtrema(const double min, const double max) {
+    _minSample = min;
+    _maxSample = max;
 }
 
 std::vector<double> Analyzer::applyFft(const std::vector<Aquila::SampleType> sampleBuffer) {
@@ -63,7 +75,7 @@ std::vector<double> Analyzer::applyFft(const std::vector<Aquila::SampleType> sam
     scaleLog(power);
 
     // squash so that displayable on screen.
-    return squashBufferByFour(power);
+    return spectrumize(power);
 }
 
 void Analyzer::applyEwma(std::vector<double> &currBuffer) {
@@ -92,7 +104,6 @@ void Analyzer::scaleLog(std::vector<double> &currBuffer) {
     }
 }
 
-//@TODO: make more... generic to say the least.
 std::vector<double> Analyzer::squashBufferByFour(const std::vector<double> buffer) {
     if (buffer.size() % 4 != 0)
         throw std::runtime_error("buffer is not squashable by four");
@@ -104,4 +115,55 @@ std::vector<double> Analyzer::squashBufferByFour(const std::vector<double> buffe
         *it++ = avg;
     }
     return squashedBuffer;
+}
+
+std::vector<double> Analyzer::spectrumize(const std::vector<double> buffer) {
+
+    std::vector<double> peakMagnitudes (_freqBin.size() - 1, std::numeric_limits<double>::lowest());
+
+    for (int i = 0; i < buffer.size(); i++) {
+        const double SAMPLE = buffer[i];
+        const double FREQ = i * _sampleRate / _FFT_SIZE;
+
+        for (int binIndex = 0; binIndex < _freqBin.size() - 1; binIndex++) {
+
+            const bool IN_INTERVAL = (_freqBin[binIndex] <= FREQ) &&
+                (FREQ <= _freqBin[binIndex + 1]);
+            if (IN_INTERVAL) {
+                if (SAMPLE > peakMagnitudes[binIndex]) {
+                    peakMagnitudes[binIndex] = SAMPLE;
+                }
+            }
+
+        }
+    }
+
+    return peakMagnitudes;
+}
+
+std::vector<double> Analyzer::generateFrequencyAxis() {
+    // generate a frequency axis that's log-scaled from 0
+    // to SAMPLE_RATE / 2
+
+    // (x1, y1) = (1, 10)
+    // (x2, y2) = (50, SAMPLE_RATE / 2)
+
+    const double x1 = 1;
+    const double y1 = 10;
+    const double x2 = 200;
+    const double y2 = _sampleRate / 2;
+
+    // y = a * e ^ (b * x)
+    // b = ln(y1 / y2) / (x1 - x2)
+    // a = y1 / e ^ (b * x1)
+
+    const double b = log(y1 / y2) / (x1 - x2);
+    const double a = y1 / exp(b * x1);
+    auto func = [a, b] (const double x) -> double { return a * exp(b * x); };
+
+    std::vector<double> x_axis_vals;
+    for (int i = x1; i <= x2; i++) {
+        x_axis_vals.push_back(func(i));
+    }
+    return x_axis_vals;
 }
