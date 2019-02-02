@@ -32,6 +32,8 @@ Analyzer::Analyzer(const std::size_t fftSize, const double samplingRate) {
     // set up containers that can be pre-calculated
     calcWindowVals();
     _freqBin = generateFrequencyAxis();
+    _extrema.setFrequencyBin(_freqBin);
+    _extrema.setFrequencyFactor(_sampleRate / _FFT_SIZE);
 }
 
 void Analyzer::calcWindowVals() {
@@ -42,12 +44,34 @@ void Analyzer::calcWindowVals() {
     }
 }
 
-void Analyzer::setExtrema(const double min, const double max) {
-    _minSample = min;
-    _maxSample = max;
+std::vector<double> Analyzer::transform(const std::vector<Aquila::SampleType>& sampleBuffer) {
+    // apply Fast Fourier Transform
+    std::vector<double> power = applyFft(sampleBuffer);
+
+    // scale to be a percentage of the absolute peak
+    //_extrema.simpleScale(power);
+    _extrema.complexScale(power);
+
+    // apply ewma
+    applyEwma(power);
+
+    // do log conversion
+    //scaleLog(power);
+
+    // squash so that displayable on screen
+    return spectrumize(power);
 }
 
-std::vector<double> Analyzer::applyFft(const std::vector<Aquila::SampleType> sampleBuffer) {
+void Analyzer::updateExtrema(const std::vector<Aquila::SampleType> &sampleBuffer) {
+    // apply Fast Fourier Transform
+    std::vector<double> power = applyFft(sampleBuffer);
+
+    // check for extrema
+    _extrema.update(power);
+
+}
+
+std::vector<double> Analyzer::applyFft(const std::vector<Aquila::SampleType>& sampleBuffer) {
     // setup
     const std::size_t N = sampleBuffer.size();
 
@@ -68,14 +92,7 @@ std::vector<double> Analyzer::applyFft(const std::vector<Aquila::SampleType> sam
         power[i] = std::abs(_out[i][0]);
     }
 
-    // apply ewma
-    applyEwma(power);
-
-    // do log conversion
-    scaleLog(power);
-
-    // squash so that displayable on screen.
-    return spectrumize(power);
+    return power;
 }
 
 void Analyzer::applyEwma(std::vector<double> &currBuffer) {
@@ -117,24 +134,27 @@ std::vector<double> Analyzer::squashBufferByFour(const std::vector<double> buffe
     return squashedBuffer;
 }
 
-std::vector<double> Analyzer::spectrumize(const std::vector<double> buffer) {
+int Analyzer::findBin(const double freq) {
+    for (int i = 0; i < _freqBin.size() - 1; i++) {
+        const bool IN_BIN = (_freqBin[i] <= freq) && (freq <= _freqBin[i + 1]);
+        if (IN_BIN) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+std::vector<double> Analyzer::spectrumize(const std::vector<double> magnitudeList) {
 
     std::vector<double> peakMagnitudes (_freqBin.size() - 1, std::numeric_limits<double>::lowest());
 
-    for (int i = 0; i < buffer.size(); i++) {
-        const double SAMPLE = buffer[i];
+    for (int i = 0; i < magnitudeList.size(); i++) {
+        const double MAGNITUDE = magnitudeList[i];
         const double FREQ = i * _sampleRate / _FFT_SIZE;
 
-        for (int binIndex = 0; binIndex < _freqBin.size() - 1; binIndex++) {
-
-            const bool IN_INTERVAL = (_freqBin[binIndex] <= FREQ) &&
-                (FREQ <= _freqBin[binIndex + 1]);
-            if (IN_INTERVAL) {
-                if (SAMPLE > peakMagnitudes[binIndex]) {
-                    peakMagnitudes[binIndex] = SAMPLE;
-                }
-            }
-
+        const int BIN_INDEX = findBin(FREQ);
+        if (BIN_INDEX != -1 && MAGNITUDE > peakMagnitudes[BIN_INDEX]) {
+            peakMagnitudes[BIN_INDEX] = MAGNITUDE;
         }
     }
 

@@ -30,13 +30,34 @@ void Engine::run() {
         std::cerr << "Wasn't able to open file" << std::endl;
         return;
     }
+    setup();
+
     song.play();
 
     loop();
 }
 
+void Engine::setup() {
+    std::vector<Aquila::SampleType> sampleBuffer;
+    for (std::size_t i = 0;
+         i < std::floor(_NUM_SAMPLES / _FFT_SIZE);
+         i++) {
+
+        sampleBuffer.resize(_FFT_SIZE, 0);
+        auto it = sampleBuffer.begin();
+        for (std::size_t j = i * _FFT_SIZE; j < (i + 1) * _FFT_SIZE; j++) {
+            *it++ = _wav.sample(j);
+        }
+
+        _analyzer.updateExtrema(sampleBuffer);
+    }
+}
+
 void Engine::loop() {
-    using namespace std::chrono;
+    using std::chrono::system_clock;
+    using std::chrono::milliseconds;
+    using std::chrono::duration_cast;
+
     milliseconds debt {0};
     std::vector<Aquila::SampleType> sampleBuffer;
     for (std::size_t i = 0;
@@ -50,10 +71,10 @@ void Engine::loop() {
         for (std::size_t j = i * _FFT_SIZE; j < (i + 1) * _FFT_SIZE; j++)
             *it++ = _wav.sample(j);
 
-        std::vector<double> fftResult = _analyzer.applyFft(sampleBuffer);
+        std::vector<double> displayableData = _analyzer.transform(sampleBuffer);
 
         constexpr int MAX = MAX_HEIGHT;
-        _visualizer.displayToScreen(fftResult, 0, MAX);
+        _visualizer.displayToScreen(displayableData, 0, MAX);
 
         const auto END = system_clock::now();
         const milliseconds TIME_ELAPSED = duration_cast<milliseconds>(END - START);

@@ -1,5 +1,5 @@
 add_executable(analyzable
-        main.cpp Visualizer.cpp Visualizer.h Analyzer.cpp Analyzer.h Engine.cpp Engine.h)
+        main.cpp Visualizer.cpp Visualizer.h Analyzer.cpp Analyzer.h Engine.cpp Engine.h Extrema.cpp Extrema.h)
 
 target_link_libraries(analyzable ${SFML_LIBRARIES} ${SFML_DEPENDENCIES}
         Aquila fftw3)

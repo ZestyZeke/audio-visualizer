@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 #include <aquila/global.h>
+#include "Extrema.h"
 
 // hardcoded constants,
 // adjusted as necessary
@@ -58,22 +59,38 @@ public:
     Analyzer(const std::size_t fftSize, const double samplingRate);
 
     ///
-    /// \brief top level function for applying a fast fourier transform on a buffer of samples
-    /// \param sampleBuffer the buffer of samples to apply the fast fourier transform on
-    /// \return a vector of doubles representing frequency vs power
-    std::vector<double> applyFft(const std::vector<Aquila::SampleType> sampleBuffer);
+    /// \brief top level function for applying a fast fourier transform on a buffer of samples,
+    /// amongst other transformations such that the data will be easily displayable
+    /// \param sampleBuffer the samples to transform
+    /// \return the result of all the transformations
+    std::vector<double> transform(const std::vector<Aquila::SampleType>& sampleBuffer);
 
-    /// \brief sets the min and max samples of the song
-    /// \param min the minimum sample
-    /// \param max the maximum sample
-    void setExtrema(const double min, const double max);
+    ///
+    /// \brief top level function for applying a fast fourier transform on a buffer of samples,
+    /// and subsequently storing the extrema for use on a later pass-through
+    /// \param sampleBuffer the samples to transform
+    void updateExtrema(const std::vector<Aquila::SampleType>& sampleBuffer);
 
 private:
 
+    ///
+    /// \brief function for applying a fast fourier transform on a buffer of samples
+    /// \param sampleBuffer the buffer of samples to apply the fast fourier transform on
+    /// \return a vector of doubles representing frequency vs power
+    std::vector<double> applyFft(const std::vector<Aquila::SampleType>& sampleBuffer);
+
+    ///
+    /// \brief finds the bin that the frequency fits into
+    /// \param freq the frequency to use
+    /// \return the index of the bin, returns -1 if doesn't fit into a bin
+    int findBin(const double freq);
+
+    ///
     /// \brief generates the freq bin
     /// \return a vector of frequencies representing the x-axis of the spectrum
     std::vector<double> generateFrequencyAxis();
 
+    ///
     /// \brief puts fft results into a spectrum that is log-scaled w respect to frequency
     /// \param buffer the buffer to squash into frequency bins for display
     /// \return a vector of the samples transformed into a spectrum
@@ -102,6 +119,10 @@ private:
     /// 10 * log(el ^2 / ref^2 ) / log(10)
     /// \param currBuffer
     void scaleLog(std::vector<double>& currBuffer);
+
+    ///
+    /// \brief a convenience class for holding the extrema of the fft data
+    Extrema _extrema;
 
     ///
     /// \brief pointer that references an array to use for passing the buffer
@@ -139,10 +160,6 @@ private:
     /// \brief the sample rate of the song
     /// used for frequency calculations
     double _sampleRate;
-
-    //@TODO: get rid of or proper documentation
-    double _minSample;
-    double _maxSample;
 
 };
 

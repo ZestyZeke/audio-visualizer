@@ -14,7 +14,8 @@
 
 // hardcoded constants, adjusted as necessary
 //#define MAX_HEIGHT 500
-#define MAX_HEIGHT 300 
+//#define MAX_HEIGHT 300
+#define MAX_HEIGHT 100
 //#define FFT_SIZE 1024
 #define FFT_SIZE 2048
 
@@ -39,6 +40,11 @@ public:
     void run();
 
 private:
+
+    ///
+    /// \brief passes through all the samples to perform any pre-processing
+    /// such as determining peak magnitudes
+    void setup();
 
     ///
     /// \brief performs the 'loop' of iteratively grabbing samples from song

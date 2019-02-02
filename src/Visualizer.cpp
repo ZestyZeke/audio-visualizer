@@ -24,13 +24,24 @@ std::vector<std::size_t> Visualizer::normalize(std::vector<double> buffer, const
     const double step = (maxHeight - minHeight) / static_cast<double>(_NUM_ROWS);
     // here, i represents the ith row to be included in
     for (auto sample : buffer) {
+
+        bool inInterval {false};
         for (std::size_t i = 0; i < _NUM_ROWS; i++) {
-            const bool IN_INTERVAL = minHeight + i * step <= sample &&
+            inInterval = minHeight + i * step <= sample &&
                     sample <= minHeight + (i + 1) * step;
-            if (IN_INTERVAL) {
+            if (inInterval) {
                 normalizedBuffer.push_back(i);
                 break;
             }
+        }
+
+        if (inInterval)
+            continue;
+
+        if (sample < minHeight) {
+            normalizedBuffer.push_back(static_cast<std::size_t>(minHeight + 1));
+        } else if (sample > maxHeight) {
+            normalizedBuffer.push_back(static_cast<std::size_t>(maxHeight - 1));
         }
     }
     return normalizedBuffer;
