@@ -57,7 +57,7 @@ if [ "$#" -eq 1 ]; then
         list_files
     fi
 
-    echo "here: $1"
+    echo "playing $1"
     ./analyzable $1
 fi
 

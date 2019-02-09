@@ -120,6 +120,8 @@ private:
     /// \param currBuffer
     void scaleLog(std::vector<double>& currBuffer);
 
+private:
+
     ///
     /// \brief a convenience class for holding the extrema of the fft data
     Extrema _extrema;

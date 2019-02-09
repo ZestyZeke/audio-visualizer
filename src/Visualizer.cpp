@@ -49,6 +49,9 @@ std::vector<std::size_t> Visualizer::normalize(std::vector<double> buffer, const
 
 void Visualizer::displayToScreen(std::vector<double> buffer, const double minHeight, const double maxHeight) {
     checkEvent();
+    if (!_window.isOpen()) {
+        return;
+    }
 
     std::vector<std::size_t> normalizedBuffer = normalize(buffer, minHeight, maxHeight);
 
@@ -116,6 +119,8 @@ void Visualizer::checkEvent() {
         } else if (event.type == sf::Event::KeyReleased) {
             if (event.key.code == sf::Keyboard::Space) {
                 updateColors();
+            } else if (event.key.code == sf::Keyboard::Escape) {
+                _window.close();
             }
         }
     }

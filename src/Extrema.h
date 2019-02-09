@@ -69,11 +69,16 @@ private:
 
     ///
     /// \brief the absolute largest magnitude across all frequency bins
-    double _absolutePeak = std::numeric_limits<double>::lowest();
+    double _absolutePeak = _NO_PEAK_FOUND;
 
     ///
     /// \brief the scalar to multiply index by to get frequency
     double _freqFactor;
+
+    ///
+    /// \brief default value to use, when showing that no peak was found for a given frequency
+    /// bin
+    static constexpr double _NO_PEAK_FOUND = std::numeric_limits<double>::lowest();
 
 };
 

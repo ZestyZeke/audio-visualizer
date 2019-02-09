@@ -52,14 +52,13 @@ std::vector<double> Analyzer::transform(const std::vector<Aquila::SampleType>& s
     //_extrema.simpleScale(power);
     _extrema.complexScale(power);
 
-    // apply ewma
-    applyEwma(power);
+    auto spectrum = spectrumize(power);
 
-    // do log conversion
-    //scaleLog(power);
+    scaleLog(spectrum);
 
-    // squash so that displayable on screen
-    return spectrumize(power);
+    applyEwma(spectrum);
+
+    return spectrum;
 }
 
 void Analyzer::updateExtrema(const std::vector<Aquila::SampleType> &sampleBuffer) {
@@ -146,7 +145,7 @@ int Analyzer::findBin(const double freq) {
 
 std::vector<double> Analyzer::spectrumize(const std::vector<double> magnitudeList) {
 
-    std::vector<double> peakMagnitudes (_freqBin.size() - 1, std::numeric_limits<double>::lowest());
+    std::vector<double> peakMagnitudes (_freqBin.size() - 1, 0);
 
     for (int i = 0; i < magnitudeList.size(); i++) {
         const double MAGNITUDE = magnitudeList[i];

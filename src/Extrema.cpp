@@ -30,7 +30,7 @@ int Extrema::findBin(const double freq) {
 
 void Extrema::setFrequencyBin(const std::vector<double> &freqBin) {
     _freqBin = freqBin;
-    _peakMagnitudes = std::vector<double>(_freqBin.size() - 1, std::numeric_limits<double>::lowest());
+    _peakMagnitudes = std::vector<double>(_freqBin.size() - 1, _NO_PEAK_FOUND);
 }
 
 void Extrema::simpleScale(std::vector<double>& magnitudeList) {
@@ -46,10 +46,17 @@ void Extrema::complexScale(std::vector<double>& magnitudeList) {
 
         const int BIN_INDEX = findBin(FREQ);
         if (BIN_INDEX != -1) {
-            magnitude = magnitude / _peakMagnitudes[BIN_INDEX];
+
+            if (_peakMagnitudes[BIN_INDEX] == _NO_PEAK_FOUND) {
+                magnitude = 0.0;
+            } else {
+                magnitude /= _peakMagnitudes[BIN_INDEX];
+            }
+
         } else {
             magnitude = magnitude / _absolutePeak;
         }
+
         magnitude *= 100;
     }
 }
