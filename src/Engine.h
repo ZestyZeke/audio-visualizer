@@ -60,6 +60,11 @@ private:
     std::chrono::milliseconds balanceTime(const std::chrono::milliseconds currDebt,
             const std::chrono::milliseconds timeElapsed);
 
+    //@TODO: add description
+    //@TODO: come up with better name than 'interva'l
+    void copySamplesToBuffer(std::size_t fftBinIndex, std::vector<Aquila::SampleType>& sampleBuffer,
+        Aquila::WaveFile& waveFile);
+
     ///
     /// \brief the total number of samples in the song
     std::size_t _NUM_SAMPLES;
@@ -73,9 +78,14 @@ private:
     /// of time to wait inbetween iterations to ensure audio synchs with visuals
     std::chrono::milliseconds _DELAY;
 
+    //@TODO: update...
+    /*
     ///
     /// \brief a handle to the audio file in Wav format
     Aquila::WaveFile _wav;
+     */
+    // first is left, second is right
+    std::pair<Aquila::WaveFile, Aquila::WaveFile> _wavFilePair;
 
     ///
     /// \brief a handle to the analyzer

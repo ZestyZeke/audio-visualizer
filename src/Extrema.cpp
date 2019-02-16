@@ -3,34 +3,25 @@
 //
 
 #include "Extrema.h"
+#include "utils.h"
 
 void Extrema::update(const std::vector<double>& magnitudeList) {
     for (int i = 0; i < magnitudeList.size(); i++) {
         const double MAGNITUDE = magnitudeList[i];
         const double FREQ = i * _freqFactor;
 
-        const int BIN_INDEX = findBin(FREQ);
-        if (BIN_INDEX != -1 && MAGNITUDE > _peakMagnitudes[BIN_INDEX]) {
-            _peakMagnitudes[BIN_INDEX] = MAGNITUDE;
+        const int BIN_INDEX = utils::findBin(FREQ, _freqBinList);
+        if (BIN_INDEX != -1 && MAGNITUDE > _peakMagnitudeList[BIN_INDEX]) {
+            _peakMagnitudeList[BIN_INDEX] = MAGNITUDE;
         } if (MAGNITUDE > _absolutePeak) {
             _absolutePeak = MAGNITUDE;
         }
     }
 }
 
-int Extrema::findBin(const double freq) {
-    for (int i = 0; i < _freqBin.size() - 1; i++) {
-        const bool IN_BIN = (_freqBin[i] <= freq) && (freq <= _freqBin[i + 1]);
-        if (IN_BIN) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 void Extrema::setFrequencyBin(const std::vector<double> &freqBin) {
-    _freqBin = freqBin;
-    _peakMagnitudes = std::vector<double>(_freqBin.size() - 1, _NO_PEAK_FOUND);
+    _freqBinList = freqBin;
+    _peakMagnitudeList = std::vector<double>(_freqBinList.size() - 1, _NO_PEAK_FOUND);
 }
 
 void Extrema::simpleScale(std::vector<double>& magnitudeList) {
@@ -44,13 +35,13 @@ void Extrema::complexScale(std::vector<double>& magnitudeList) {
         const double FREQ = i * _freqFactor;
         double& magnitude = magnitudeList[i];
 
-        const int BIN_INDEX = findBin(FREQ);
+        const int BIN_INDEX = utils::findBin(FREQ, _freqBinList);
         if (BIN_INDEX != -1) {
 
-            if (_peakMagnitudes[BIN_INDEX] == _NO_PEAK_FOUND) {
+            if (_peakMagnitudeList[BIN_INDEX] == _NO_PEAK_FOUND) {
                 magnitude = 0.0;
             } else {
-                magnitude /= _peakMagnitudes[BIN_INDEX];
+                magnitude /= _peakMagnitudeList[BIN_INDEX];
             }
 
         } else {

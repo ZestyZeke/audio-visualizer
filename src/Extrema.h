@@ -52,20 +52,13 @@ public:
 
 private:
 
-    //@TODO: this exact function is defined in Analyzer
-    ///
-    /// \brief finds the frequency bin that the freq fits into
-    /// \param freq the frequency to use
-    /// \return the 0-based index if successful, else -1
-    int findBin(const double freq);
-
     ///
     /// \brief the frequency bins. Each value is a 'boundary' and 'bins' are defined in-between
-    std::vector<double> _freqBin;
+    std::vector<double> _freqBinList;
 
     ///
     /// \brief the largest magnitudes in each frequency bin
-    std::vector<double> _peakMagnitudes;
+    std::vector<double> _peakMagnitudeList;
 
     ///
     /// \brief the absolute largest magnitude across all frequency bins

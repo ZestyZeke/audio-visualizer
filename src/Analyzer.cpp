@@ -7,46 +7,78 @@
 #include <array>
 #include "Analyzer.h"
 #include <limits>
-
-double windowFunctions::windowBlack(const std::size_t i, const std::size_t N) {
-    constexpr double ALPHA = WINDOW_ALPHA;
-    constexpr double TERM1 = (1 - ALPHA) / 2;
-    const double     TERM2 = 0.5 * cos((2 * PI * i) / (N - 1));
-    const double     TERM3 = 0.5 * ALPHA * cos((4 * PI * i) / (N - 1));
-    return TERM1 - TERM2 + TERM3;
-}
-
-double windowFunctions::windowHanning(const std::size_t i, const std::size_t N) {
-    return 0.5 * (1 - cos((2 * PI * i) / (N - 1)));
-}
+#include <algorithm>
+#include <numeric>
+#include <future>
+#include "utils.h"
 
 Analyzer::Analyzer(const std::size_t fftSize, const double samplingRate) {
     _FFT_SIZE = fftSize;
     _in = static_cast<double *>(fftw_malloc(sizeof(double) * _FFT_SIZE));
     _out = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * _FFT_SIZE));
-    _plan = fftw_plan_dft_r2c_1d(static_cast<int>(_FFT_SIZE),
-            _in, _out, FFTW_MEASURE);
 
     _sampleRate = samplingRate;
 
+    setupFftPlan();
+
     // set up containers that can be pre-calculated
     calcWindowVals();
-    _freqBin = generateFrequencyAxis();
-    _extrema.setFrequencyBin(_freqBin);
+    _freqBinList = utils::generateFrequencyAxis(samplingRate);
+    _extrema.setFrequencyBin(_freqBinList);
     _extrema.setFrequencyFactor(_sampleRate / _FFT_SIZE);
 }
 
+void Analyzer::setupFftPlan() {
+    const std::string wisdomFileName {"wisdon.config"};
+    const int LOADED =
+        fftw_import_wisdom_from_filename(wisdomFileName.c_str());
+
+    _plan = fftw_plan_dft_r2c_1d(static_cast<int>(_FFT_SIZE),
+        _in, _out, FFTW_EXHAUSTIVE);
+
+    if (!LOADED) {
+        fftw_export_wisdom_to_filename(wisdomFileName.c_str());
+    }
+}
+
 void Analyzer::calcWindowVals() {
-    auto windowFunc = windowFunctions::windowHanning;
+    auto windowFunc = utils::windowHanning;
     _windowVals = std::vector<double> (_FFT_SIZE, 0);
     for (std::size_t i = 0; i < _FFT_SIZE; i++) {
         _windowVals[i] = windowFunc(i, _FFT_SIZE);
     }
 }
 
-std::vector<double> Analyzer::transform(const std::vector<Aquila::SampleType>& sampleBuffer) {
+//@TODO: have two versions of everything... for double channel and mono channel
+std::vector<double> Analyzer::transform(const std::vector<Aquila::SampleType>& sampleBufferLeft,
+    const std::vector<Aquila::SampleType>& sampleBufferRight) {
+
     // apply Fast Fourier Transform
-    std::vector<double> power = applyFft(sampleBuffer);
+    /*
+    //@TODO: perform these in separate threads?
+    //@TODO: could 'this' context be troublesome...?
+    //@TODO: for these two to work, in / out need to be managed separately...
+
+     //@TODO: to work... can modify applyFFT to take 'in' and 'out' as args...
+     //@TODO: and also need to take 'plan' separately...
+     //@TODO: just kind of need to have multiple definitions for this case
+    auto promiseLeft = std::async(std::launch::async,
+        &Analyzer::applyFft, this,
+        sampleBufferLeft);
+    auto promiseRight = std::async(std::launch::async,
+        &Analyzer::applyFft, this,
+        sampleBufferRight);
+
+    std::vector<double> power = promiseLeft.get();
+    std::vector<double> powerRight = promiseRight.get();
+     */
+
+    std::vector<double> power = applyFft(sampleBufferLeft);
+    std::vector<double> powerRight = applyFft(sampleBufferRight);
+
+    //@TODO: perform these in separate threads?
+    // combine the two channels
+    utils::parallelTransform<std::vector<double>>(power, powerRight);
 
     // scale to be a percentage of the absolute peak
     //_extrema.simpleScale(power);
@@ -54,16 +86,26 @@ std::vector<double> Analyzer::transform(const std::vector<Aquila::SampleType>& s
 
     auto spectrum = spectrumize(power);
 
-    scaleLog(spectrum);
+    // commenting this out will help bring the 'voice' out
+    utils::scaleLog(spectrum);
 
+    // commenting this out will make the display feel 'jittery'
     applyEwma(spectrum);
 
     return spectrum;
 }
 
-void Analyzer::updateExtrema(const std::vector<Aquila::SampleType> &sampleBuffer) {
+void Analyzer::updateExtrema(const std::vector<Aquila::SampleType>& sampleBufferLeft,
+    const std::vector<Aquila::SampleType>& sampleBufferRight) {
+
+    //@TODO: run these in separate threads?
     // apply Fast Fourier Transform
-    std::vector<double> power = applyFft(sampleBuffer);
+    std::vector<double> power = applyFft(sampleBufferLeft);
+
+    std::vector<double> powerRight = applyFft(sampleBufferRight);
+
+    // combine the two channels
+    utils::parallelTransform<std::vector<double>>(power, powerRight);
 
     // check for extrema
     _extrema.update(power);
@@ -111,15 +153,6 @@ void Analyzer::applyEwma(std::vector<double> &currBuffer) {
     }
 }
 
-void Analyzer::scaleLog(std::vector<double> &currBuffer) {
-    constexpr double REF = 1.0;
-    constexpr double BASE = 10.0;
-    for (double& el : currBuffer) {
-        const double TERM = (el * el) / (REF * REF);
-        el = 10 * std::log(TERM) / std::log(BASE);
-    }
-}
-
 std::vector<double> Analyzer::squashBufferByFour(const std::vector<double> buffer) {
     if (buffer.size() % 4 != 0)
         throw std::runtime_error("buffer is not squashable by four");
@@ -133,25 +166,15 @@ std::vector<double> Analyzer::squashBufferByFour(const std::vector<double> buffe
     return squashedBuffer;
 }
 
-int Analyzer::findBin(const double freq) {
-    for (int i = 0; i < _freqBin.size() - 1; i++) {
-        const bool IN_BIN = (_freqBin[i] <= freq) && (freq <= _freqBin[i + 1]);
-        if (IN_BIN) {
-            return i;
-        }
-    }
-    return -1;
-}
-
 std::vector<double> Analyzer::spectrumize(const std::vector<double> magnitudeList) {
 
-    std::vector<double> peakMagnitudes (_freqBin.size() - 1, 0);
+    std::vector<double> peakMagnitudes (_freqBinList.size() - 1, 0);
 
     for (int i = 0; i < magnitudeList.size(); i++) {
         const double MAGNITUDE = magnitudeList[i];
         const double FREQ = i * _sampleRate / _FFT_SIZE;
 
-        const int BIN_INDEX = findBin(FREQ);
+        const int BIN_INDEX = utils::findBin(FREQ, _freqBinList);
         if (BIN_INDEX != -1 && MAGNITUDE > peakMagnitudes[BIN_INDEX]) {
             peakMagnitudes[BIN_INDEX] = MAGNITUDE;
         }
@@ -160,29 +183,3 @@ std::vector<double> Analyzer::spectrumize(const std::vector<double> magnitudeLis
     return peakMagnitudes;
 }
 
-std::vector<double> Analyzer::generateFrequencyAxis() {
-    // generate a frequency axis that's log-scaled from 0
-    // to SAMPLE_RATE / 2
-
-    // (x1, y1) = (1, 10)
-    // (x2, y2) = (50, SAMPLE_RATE / 2)
-
-    const double x1 = 1;
-    const double y1 = 10;
-    const double x2 = 200;
-    const double y2 = _sampleRate / 2;
-
-    // y = a * e ^ (b * x)
-    // b = ln(y1 / y2) / (x1 - x2)
-    // a = y1 / e ^ (b * x1)
-
-    const double b = log(y1 / y2) / (x1 - x2);
-    const double a = y1 / exp(b * x1);
-    auto func = [a, b] (const double x) -> double { return a * exp(b * x); };
-
-    std::vector<double> x_axis_vals;
-    for (int i = x1; i <= x2; i++) {
-        x_axis_vals.push_back(func(i));
-    }
-    return x_axis_vals;
-}
