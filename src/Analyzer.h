@@ -73,14 +73,6 @@ private:
     void calcWindowVals();
 
     ///
-    /// \brief used to squash a given buffer by a factor of four,
-    /// by averaging each four elements
-    /// \param buffer the buffer to squash
-    /// \throws std::runtime_error if buffer is not exactly squashable by four
-    /// \return a squashed buffer
-    std::vector<double> squashBufferByFour(const std::vector<double> buffer);
-
-    ///
     /// \brief applies a Exponential Weighted Moving Average to the buffer values
     /// \param currBuffer the buffer to apply EWMA against
     void applyEwma(std::vector<double>& currBuffer);

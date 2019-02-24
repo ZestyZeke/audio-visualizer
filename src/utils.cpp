@@ -8,6 +8,7 @@
 #include <future>
 #include <cmath>
 #include <numeric>
+#include <range/v3/all.hpp>
 
 int utils::findBin(const double freq, const std::vector<double>& freqBinList) {
     auto fitsInBin = [freq]
@@ -15,7 +16,8 @@ int utils::findBin(const double freq, const std::vector<double>& freqBinList) {
         return (freqBinLeft <= freq) && (freq <= freqBinRight);
     };
 
-    auto it = std::adjacent_find(freqBinList.begin(), freqBinList.end(), fitsInBin);
+    // overloads std::adjacent_find
+    auto it = ranges::v3::adjacent_find(freqBinList, fitsInBin);
     if (it == freqBinList.end()) {
         return -1;
     } else {
@@ -26,12 +28,17 @@ int utils::findBin(const double freq, const std::vector<double>& freqBinList) {
 void utils::scaleLog(std::vector<double> &currBuffer) {
     constexpr double REF = 1.0;
     constexpr double BASE = 10.0;
-    auto scaleFunc = [REF, BASE] (double& x) {
-        const double TERM = std::pow(x, 2) / std::pow(REF, 2);
-        x = 10 * std::log(TERM) / std::log(BASE);
+
+    constexpr double TERM_DENOM = REF * REF; // why can't std::pow() be constexpr?
+    const double FACTOR = 10 / std::log(BASE); // why can't std::log() be constexpr?
+
+    auto scaleFunc = [=] (double x) {
+        const double TERM = (x * x) / TERM_DENOM;
+        return FACTOR * std::log(TERM);
     };
 
-    std::for_each(currBuffer.begin(), currBuffer.end(), scaleFunc);
+    using ranges::v3::action::transform;
+    currBuffer |= transform(scaleFunc);
 }
 
 double utils::windowBlack(const std::size_t i, const std::size_t N) {
@@ -54,9 +61,9 @@ std::vector<double> utils::generateFrequencyAxis(const double sampleRate) {
     // (x1, y1) = (1, 10)
     // (x2, y2) = (50, SAMPLE_RATE / 2)
 
-    const double x1 = 1;
+    const int x1 = 1;
     const double y1 = 10;
-    const double x2 = 200;
+    const int x2 = 200;
     const double y2 = sampleRate / 2;
 
     // y = a * e ^ (b * x)
@@ -65,13 +72,10 @@ std::vector<double> utils::generateFrequencyAxis(const double sampleRate) {
 
     const double b = log(y1 / y2) / (x1 - x2);
     const double a = y1 / exp(b * x1);
-    auto func = [a, b] (const double x) -> double { return a * exp(b * x); };
+    auto func = [a, b] (const int x) -> double { return a * exp(b * x); };
 
-    std::vector<double> x_axis_vals;
-    for (int i = x1; i <= x2; i++) {
-        x_axis_vals.push_back(func(i));
-    }
-    return x_axis_vals;
+    using namespace ranges;
+    return view::ints(x1, x2 + 1) | view::transform(func);
 }
 
 std::vector<double> utils::squashBuffer(std::vector<double> buffer, std::size_t squashFactor) {

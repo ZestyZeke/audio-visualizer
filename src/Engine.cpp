@@ -9,6 +9,7 @@
 #include <cmath>
 #include <aquila/source/WaveFile.h>
 #include <thread>
+#include <range/v3/all.hpp>
 
 Engine::Engine(const std::string fileName)
 :_FFT_SIZE {FFT_SIZE},
@@ -42,15 +43,15 @@ void Engine::run() {
 
 void Engine::copySamplesToBuffer(std::size_t fftBinIndex, std::vector<Aquila::SampleType> &sampleBuffer,
                                  Aquila::WaveFile &waveFile) {
-    sampleBuffer.resize(_FFT_SIZE, 0);
-
-    auto it = sampleBuffer.begin();
     const std::size_t FFT_BIN_BEGIN = fftBinIndex * _FFT_SIZE;
     const std::size_t FFT_BIN_END = (fftBinIndex + 1) * _FFT_SIZE;
 
-    for (std::size_t i = FFT_BIN_BEGIN; i < FFT_BIN_END; i++) {
-        *it++ = waveFile.sample(i);
-    }
+    using namespace ranges;
+    auto toSample = [&] (int i) -> Aquila::SampleType {
+        return waveFile.sample(i);
+    };
+    sampleBuffer = view::ints(FFT_BIN_BEGIN, FFT_BIN_END) |
+        view::transform(toSample);
 }
 
 void Engine::setup() {

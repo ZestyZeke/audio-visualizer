@@ -18,6 +18,7 @@
 #define MAX_HEIGHT 100
 //#define FFT_SIZE 1024
 #define FFT_SIZE 2048
+//#define FFT_SIZE 4096
 
 ///
 /// \class Engine

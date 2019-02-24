@@ -11,6 +11,7 @@
 #include <numeric>
 #include <future>
 #include "utils.h"
+#include <range/v3/all.hpp>
 
 Analyzer::Analyzer(const std::size_t fftSize, const double samplingRate) {
     _FFT_SIZE = fftSize;
@@ -128,12 +129,11 @@ std::vector<double> Analyzer::applyFft(const std::vector<Aquila::SampleType>& sa
     // only half of the values mean anything.
     // get values and pass them back.
     // don't care about complex values.
-    std::vector<double> power (N / 2, 0);
-    for (std::size_t i = 0; i < N / 2; i++) {
-        power[i] = std::abs(_out[i][0]);
-    }
+    using namespace ranges;
+    int n = N / 2; // to play nice with view::ints
+    auto toPower = [&] (int i) -> double { return std::abs(_out[i][0]); };
 
-    return power;
+    return view::ints(0, n) | view::transform(toPower);
 }
 
 void Analyzer::applyEwma(std::vector<double> &currBuffer) {
@@ -151,19 +151,6 @@ void Analyzer::applyEwma(std::vector<double> &currBuffer) {
         // update prevVals for next time this function is called
         _prevVals[i] = currBuffer[i];
     }
-}
-
-std::vector<double> Analyzer::squashBufferByFour(const std::vector<double> buffer) {
-    if (buffer.size() % 4 != 0)
-        throw std::runtime_error("buffer is not squashable by four");
-    std::vector<double> squashedBuffer (buffer.size() / 4, 0);
-    auto it = squashedBuffer.begin();
-    for (std::size_t i = 0; i < buffer.size(); i += 4) {
-        double avg = buffer[i] + buffer[i + 1] + buffer[i + 2] + buffer[i + 3];
-        avg /= 4.0;
-        *it++ = avg;
-    }
-    return squashedBuffer;
 }
 
 std::vector<double> Analyzer::spectrumize(const std::vector<double> magnitudeList) {

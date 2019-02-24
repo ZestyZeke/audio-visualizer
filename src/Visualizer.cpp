@@ -21,6 +21,9 @@
 std::vector<std::size_t> Visualizer::normalize(std::vector<double> buffer, const double minHeight,
         const double maxHeight) {
     std::vector<std::size_t> normalizedBuffer;
+    // overloads assignment operator as push_back() member function
+    auto backInserter = std::back_inserter(normalizedBuffer);
+
     const double step = (maxHeight - minHeight) / static_cast<double>(_NUM_ROWS);
     // here, i represents the ith row to be included in
     for (auto sample : buffer) {
@@ -30,7 +33,7 @@ std::vector<std::size_t> Visualizer::normalize(std::vector<double> buffer, const
             inInterval = minHeight + i * step <= sample &&
                     sample <= minHeight + (i + 1) * step;
             if (inInterval) {
-                normalizedBuffer.push_back(i);
+                backInserter = i;
                 break;
             }
         }
@@ -39,9 +42,9 @@ std::vector<std::size_t> Visualizer::normalize(std::vector<double> buffer, const
             continue;
 
         if (sample < minHeight) {
-            normalizedBuffer.push_back(static_cast<std::size_t>(minHeight + 1));
+            backInserter = static_cast<std::size_t>(minHeight + 1);
         } else if (sample > maxHeight) {
-            normalizedBuffer.push_back(static_cast<std::size_t>(maxHeight - 1));
+            backInserter = static_cast<std::size_t>(maxHeight - 1);
         }
     }
     return normalizedBuffer;

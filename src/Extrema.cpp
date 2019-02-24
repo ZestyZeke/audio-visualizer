@@ -4,6 +4,7 @@
 
 #include "Extrema.h"
 #include "utils.h"
+#include <range/v3/all.hpp>
 
 void Extrema::update(const std::vector<double>& magnitudeList) {
     for (int i = 0; i < magnitudeList.size(); i++) {
@@ -25,9 +26,9 @@ void Extrema::setFrequencyBin(const std::vector<double> &freqBin) {
 }
 
 void Extrema::simpleScale(std::vector<double>& magnitudeList) {
-    for (double& val : magnitudeList) {
-        val = (val / _absolutePeak) * 100;
-    }
+    using namespace ranges;
+    auto scaleFunc = [=] (double val) { return val / _absolutePeak * 100; };
+    magnitudeList |= action::transform(scaleFunc);
 }
 
 void Extrema::complexScale(std::vector<double>& magnitudeList) {

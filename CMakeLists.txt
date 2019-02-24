@@ -8,4 +8,7 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 find_package(SFML REQUIRED network audio graphics window system)
 find_package(Threads REQUIRED)
 
+include(.conan/conanbuildinfo.cmake)
+conan_basic_setup(NO_OUTPUT_DIRS) # by default this macro overrides where binary is built to
+
 add_subdirectory(src)

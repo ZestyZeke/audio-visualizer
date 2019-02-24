@@ -96,7 +96,13 @@ namespace utils {
     std::vector<double> generateFrequencyAxis(double sampleRate);
 
 
-    //@TODO: update documentation
+    ///
+    /// \brief used to squash a given buffer by a factor,
+    /// by averaging each  n elements
+    /// \param buffer the buffer to squash
+    /// \param squashFactor the factor to squash by
+    /// \throws std::runtime_error if buffer is not exactly squashable by four
+    /// \return a squashed buffer
     std::vector<double> squashBuffer(std::vector<double> buffer, std::size_t squashFactor);
 
 };
