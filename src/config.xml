@@ -1,0 +1,25 @@
+<config>
+    <fftSize>
+        2048
+    </fftSize>
+    <resolution>
+        <x>
+            1920
+        </x>
+        <y>
+            1080
+        </y>
+    </resolution>
+    <maxHeight>
+        100
+    </maxHeight>
+    <numRows>
+        100
+    </numRows>
+    <windowTitle>
+        "Zeke Audio Visualizer"
+    </windowTitle>
+    <ewmaAlpha>
+        0.3
+    </ewmaAlpha>
+</config>

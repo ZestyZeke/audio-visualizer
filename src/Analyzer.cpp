@@ -13,8 +13,9 @@
 #include "utils.h"
 #include <range/v3/all.hpp>
 
-Analyzer::Analyzer(const std::size_t fftSize, const double samplingRate) {
-    _FFT_SIZE = fftSize;
+Analyzer::Analyzer(Config config, double samplingRate) {
+    _FFT_SIZE = config.fftSize;
+    _EWMA_ALPHA = config.ewmaAlpha;
     _in = static_cast<double *>(fftw_malloc(sizeof(double) * _FFT_SIZE));
     _out = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * _FFT_SIZE));
 
@@ -144,10 +145,9 @@ void Analyzer::applyEwma(std::vector<double> &currBuffer) {
         return;
     }
 
-    constexpr double ALPHA = EWMA_ALPHA;
     for (int i = 0; i < currBuffer.size() && i < _prevVals.size(); i++) {
         // apply exponential weighted moving average
-        currBuffer[i] = ALPHA * _prevVals[i] + (1 - ALPHA) * currBuffer[i];
+        currBuffer[i] = _EWMA_ALPHA * _prevVals[i] + (1 - _EWMA_ALPHA) * currBuffer[i];
         // update prevVals for next time this function is called
         _prevVals[i] = currBuffer[i];
     }

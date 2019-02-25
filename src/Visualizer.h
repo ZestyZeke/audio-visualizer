@@ -9,6 +9,7 @@
 #include <aquila/global.h>
 #include <fftw3.h>
 #include <SFML/Graphics.hpp>
+#include "Config.h"
 
 // hardcoded constants,
 // adjusted as necessary
@@ -26,8 +27,8 @@ public:
 
     ///
     /// \brief Constructor
-    Visualizer() :_color(sf::Color::Cyan),
-    _window(sf::VideoMode(RESOLUTION_X, RESOLUTION_Y), WINDOW_TITLE) { }
+    Visualizer(Config config) :_color(sf::Color::Cyan),
+    _window(sf::VideoMode(config.resolution.x, config.resolution.y), config.windowTitle) { }
 
     ///
     /// \brief Destructor

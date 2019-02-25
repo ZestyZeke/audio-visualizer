@@ -11,10 +11,7 @@
 #include <vector>
 #include <aquila/global.h>
 #include "Extrema.h"
-
-// hardcoded constants,
-// adjusted as necessary
-#define EWMA_ALPHA 0.3
+#include "Config.h"
 
 ///
 /// \class Analyzer
@@ -30,7 +27,7 @@ public:
     ///
     /// \brief Constructor
     /// \param fftSize the size of the FastFourierTransform
-    Analyzer(const std::size_t fftSize, const double samplingRate);
+    Analyzer(Config config, double samplingRate);
 
     //@TODO: update description
     ///
@@ -119,6 +116,9 @@ private:
     /// \brief the sample rate of the song
     /// used for frequency calculations
     double _sampleRate;
+
+    //@TODO: description
+    double _EWMA_ALPHA;
 
 };
 

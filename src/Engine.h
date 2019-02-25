@@ -11,14 +11,7 @@
 #include <fstream>
 #include "Analyzer.h"
 #include "Visualizer.h"
-
-// hardcoded constants, adjusted as necessary
-//#define MAX_HEIGHT 500
-//#define MAX_HEIGHT 300
-#define MAX_HEIGHT 100
-//#define FFT_SIZE 1024
-#define FFT_SIZE 2048
-//#define FFT_SIZE 4096
+#include "Config.h"
 
 ///
 /// \class Engine
@@ -34,7 +27,7 @@ public:
     ///
     /// \brief Constructor
     /// \param fileName
-    Engine(const std::string fileName);
+    Engine(std::string fileName, Config config);
 
     ///
     /// \brief high level entry point for running the engine
@@ -72,7 +65,10 @@ private:
 
     ///
     /// \brief the number of samples to grab at each iteration for fft processing
-    std::size_t _FFT_SIZE;
+    const std::size_t _FFT_SIZE;
+
+    //@TODO: give description
+    const std::size_t _MAX_HEIGHT;
 
     ///
     /// \brief if processing occured instantaneously, this would be the amount

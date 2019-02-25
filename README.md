@@ -25,3 +25,5 @@ REQUIREMENTS
 - fftw3
 - aquila
 - c++ compiler capable of c++14
+- range-v3
+- pugixml

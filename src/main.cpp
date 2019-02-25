@@ -12,19 +12,20 @@
 #include <aquila/source/WaveFile.h>
 #include <aquila/transform/FftFactory.h>
 #include "Engine.h"
+#include "Config.h"
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     // don't sync streams since we're not concerned with printing output
     std::ios::sync_with_stdio(false);
+
+    Config config;
+    config.loadFile("config.xml");
 
     std::string fileName {"444.wav"};
     if (argc == 2) {
         fileName = std::string(argv[1]);
     }
 
-    Engine engine(fileName);
+    Engine engine(fileName, config);
     engine.run();
-
-    return 0;
 }

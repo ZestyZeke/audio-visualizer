@@ -11,11 +11,13 @@
 #include <thread>
 #include <range/v3/all.hpp>
 
-Engine::Engine(const std::string fileName)
-:_FFT_SIZE {FFT_SIZE},
+Engine::Engine(const std::string fileName, Config config)
+:_FFT_SIZE {config.fftSize},
+_MAX_HEIGHT {config.maxHeight},
 _wavFilePair {std::make_pair(Aquila::WaveFile(fileName, Aquila::StereoChannel::LEFT),
         Aquila::WaveFile(fileName, Aquila::StereoChannel::RIGHT))},
-_analyzer {_FFT_SIZE, _wavFilePair.first.getSampleFrequency()},
+_analyzer {config, _wavFilePair.first.getSampleFrequency()},
+_visualizer {config},
 _log{"log.txt"}
 {
     // extract useful info from wav
@@ -91,8 +93,7 @@ void Engine::loop() {
         std::vector<double> displayableData = _analyzer.transform(sampleBufferLeft,
             sampleBufferRight);
 
-        constexpr int MAX = MAX_HEIGHT;
-        _visualizer.displayToScreen(displayableData, 0, MAX);
+        _visualizer.displayToScreen(displayableData, 0, _MAX_HEIGHT);
 
         const auto END = system_clock::now();
         const milliseconds TIME_ELAPSED = duration_cast<milliseconds>(END - START);
