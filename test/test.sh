@@ -15,7 +15,7 @@ cd "$BUILD_DIR"/src
 # -------------------------------------------------------
 # arguments should provide filename
 # -------------------------------------------------------
-if [ "$#" -ge 2 ]; then
+if [ "$#" -ge 3 ]; then
     echo "Illegal number of parameters"
     echo "Usage: $0 <file-name-without-path>"
 fi
@@ -47,7 +47,7 @@ list_files() {
 # -------------------------------------------------------
 # run program
 # -------------------------------------------------------
-if [ "$#" -eq 1 ]; then
+if [ "$#" -ge 1 ]; then
     if [[ ( $1 == "help" ) || ( $1 == "-h" ) || ( $1 == "--help" ) ]]
     then
         display_help
@@ -58,7 +58,21 @@ if [ "$#" -eq 1 ]; then
         list_files
     fi
 
-    echo "playing $1"
+    # check for debug flags
+    if [ "$#" -eq 2 ]; then
+        if [[ ( $2 == "--debug" ) ]]
+        then
+            gdb --args analyzable $1
+            exit 1
+        fi
+    fi
+
+    if [[ ( $1 == "--debug" ) ]]
+    then
+        gdb analyzable
+        exit 1
+    fi
+
     ./analyzable $1
 fi
 
