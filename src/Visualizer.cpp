@@ -18,6 +18,14 @@
 #include <fstream>
 #include <SFML/Audio/Music.hpp>
 
+Visualizer::Visualizer(Config config)
+: _color(sf::Color::Cyan),
+_window(sf::VideoMode(config.resolution.x, config.resolution.y), config.windowTitle),
+_NUM_ROWS(config.numRows)
+{
+
+}
+
 std::vector<std::size_t> Visualizer::normalize(std::vector<double> buffer, const double minHeight,
         const double maxHeight) {
     std::vector<std::size_t> normalizedBuffer;

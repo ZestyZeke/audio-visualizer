@@ -1,5 +1,14 @@
 [requires]
 range-v3/0.4.0@ericniebler/stable
+sfml/2.5.1@bincrafters/stable
+pugixml/1.9@bincrafters/stable
+fftw/3.3.8@bincrafters/stable
 
 [generators]
 cmake
+
+[options]
+sfml:window=True
+sfml:graphics=True
+sfml:audio=True
+sfml:network=True

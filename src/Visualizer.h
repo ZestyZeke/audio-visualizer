@@ -11,13 +11,6 @@
 #include <SFML/Graphics.hpp>
 #include "Config.h"
 
-// hardcoded constants,
-// adjusted as necessary
-#define NUM_ROWS 100
-#define RESOLUTION_X 1920
-#define RESOLUTION_Y 1080 
-#define WINDOW_TITLE "Audio Visualizer"
-
 ///
 /// \class Visualizer
 ///
@@ -27,8 +20,8 @@ public:
 
     ///
     /// \brief Constructor
-    Visualizer(Config config) :_color(sf::Color::Cyan),
-    _window(sf::VideoMode(config.resolution.x, config.resolution.y), config.windowTitle) { }
+    /// \param config to use for Populating member values
+    Visualizer(Config config);
 
     ///
     /// \brief Destructor
@@ -69,7 +62,7 @@ private:
 
     ///
     /// \brief number of vertical bins to divide the window into
-    const std::size_t _NUM_ROWS = NUM_ROWS;
+    const std::size_t _NUM_ROWS;
 
     ///
     /// \brief the window to use for rendering shapes

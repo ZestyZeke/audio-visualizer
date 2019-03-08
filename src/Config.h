@@ -8,19 +8,53 @@
 #include <cstddef>
 #include <string>
 
+///
+/// \struct Resolution
+///
+/// \brief simple struct that holds window resolution
 struct Resolution {
+    ///
+    /// \brief the resolution in x pixels
     int x;
+
+    ///
+    /// \brief the resolution in y pixels
     int y;
 };
 
+///
+/// \struct Config
+///
+/// \brief simple struct for holding configuration data
 struct Config {
+
+    ///
+    /// \brief the window resolution
     Resolution resolution;
+
+    ///
+    /// \brief the size of the FFT to perform
     std::size_t fftSize;
+
+    ///
+    /// \brief the
     std::size_t maxHeight;
+
+    ///
+    /// \brief the number of vertical bins to divide the window into
     std::size_t numRows;
+
+    ///
+    /// \brief the title to display on the window
     std::string windowTitle;
+
+    ///
+    /// \brief used for adjusting the weight in the EWMA calculation
     double ewmaAlpha;
 
+    ///
+    /// \brief function that grabs config info from a given file
+    /// \param fileName the name of the file to be grapped
     void loadFile(std::string fileName);
 };
 

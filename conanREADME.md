@@ -11,7 +11,7 @@ conanfile.txt
 [generators]
 cmake
 
-conan install .. -s compiler=clang -s compiler.version=7.0 -s compiler.libcxx=libstdc++ --build=missing
+conan install .. -s compiler=clang -s compiler.version=7.0 -s compiler.libcxx=libstdc++11 --build=missing
 
 edit top level CMakeLists.txt
 -----------------------------
