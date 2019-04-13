@@ -16,6 +16,7 @@ install:
     - pip install conan --user
 # Automatic detection of arch, compiler, etc.
     - conan user
+    - conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
 script:
 # Download dependencies 
     - mkdir .conan && pushd .conan && conan install .. -s compiler=clang -s compiler.version=6.0 -s compiler.libcxx=libstdc++11 --build=missing && popd
