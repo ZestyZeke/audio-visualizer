@@ -98,6 +98,7 @@ void Engine::loop() {
         const auto END = system_clock::now();
         const milliseconds TIME_ELAPSED = duration_cast<milliseconds>(END - START);
 
+        // this function will call sleep if there is time to spare after displaying
         debt = balanceTime(debt, TIME_ELAPSED);
     }
 }
