@@ -98,6 +98,7 @@ void Engine::loop() {
         const auto END = system_clock::now();
         const milliseconds TIME_ELAPSED = duration_cast<milliseconds>(END - START);
 
+        // this function will call sleep if there is time to spare after displaying
         debt = balanceTime(debt, TIME_ELAPSED);
     }
 }
@@ -124,7 +125,7 @@ std::chrono::milliseconds Engine::balanceTime(const std::chrono::milliseconds cu
     } else {
         // don't have time to spare
         // adjust debt for falling behind
-        const milliseconds OVERFLOW = timeElapsed - _DELAY;
-        return currDebt + OVERFLOW;
+        const milliseconds OVERFLOW_TIME = timeElapsed - _DELAY;
+        return currDebt + OVERFLOW_TIME;
     }
 }
