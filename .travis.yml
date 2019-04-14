@@ -17,6 +17,13 @@ install:
 # Automatic detection of arch, compiler, etc.
     - conan user
     - conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+# Need to manually install aquila
+    - git clone https://github.com/zsiciarz/aquila.git aquila-src
+    - mkdir aquila-build && pushd aquila-build
+    - cmake ../aquila-src
+    - make
+    - make install
+    - popd
 script:
 # Download dependencies 
     - mkdir .conan && pushd .conan && conan install .. -s compiler=clang -s compiler.version=6.0 -s compiler.libcxx=libstdc++11 --build=missing && popd
