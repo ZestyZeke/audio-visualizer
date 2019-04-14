@@ -125,7 +125,7 @@ std::chrono::milliseconds Engine::balanceTime(const std::chrono::milliseconds cu
     } else {
         // don't have time to spare
         // adjust debt for falling behind
-        const milliseconds OVERFLOW = timeElapsed - _DELAY;
-        return currDebt + OVERFLOW;
+        const milliseconds OVERFLOW_TIME = timeElapsed - _DELAY;
+        return currDebt + OVERFLOW_TIME;
     }
 }
