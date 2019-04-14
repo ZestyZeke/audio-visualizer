@@ -1,4 +1,4 @@
-sudo: false
+sudo: required 
 language: cpp
 dist: xenial
 compiler: 
@@ -22,7 +22,7 @@ install:
     - mkdir aquila-build && pushd aquila-build
     - cmake ../aquila-src
     - make
-    - make install
+    - sudo make install
     - popd
 script:
 # Download dependencies 
