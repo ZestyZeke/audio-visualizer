@@ -1,4 +1,5 @@
-# Audio-Visualizer
+# Audio-Visualizer 
+[![Build Status](https://travis-ci.org/zestze/audio-visualizer.svg?branch=master)](https://travis-ci.org/zestze/audio-visualizer)
 
 Summary
 -------
