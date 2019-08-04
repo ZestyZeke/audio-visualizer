@@ -15,6 +15,10 @@ Switch to the `test/` folder. In there, run
 `install.sh` and then `test.sh` with the given
 file name.
 
+Example
+-------
+[Streamable link](https://streamable.com/02xn8)
+
 Features
 --------
 - uses the FFT to display the samples on a spectrum
