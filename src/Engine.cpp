@@ -2,16 +2,20 @@
 // Created by zeke on 9/30/18.
 //
 
-#include <SFML/Audio/Music.hpp>
-#include "Engine.h"
 #include <iostream>
 #include <chrono>
 #include <cmath>
-#include <aquila/source/WaveFile.h>
 #include <thread>
+
 #include <range/v3/all.hpp>
 
-Engine::Engine(const std::string fileName, Config config)
+#include <SFML/Audio/Music.hpp>
+
+#include <aquila/source/WaveFile.h>
+
+#include "Engine.h"
+
+Engine::Engine(const std::string& fileName, Config config)
 :_FFT_SIZE {config.fftSize},
 _MAX_HEIGHT {config.maxHeight},
 _wavFilePair {std::make_pair(Aquila::WaveFile(fileName, Aquila::StereoChannel::LEFT),

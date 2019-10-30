@@ -5,7 +5,7 @@
 #ifndef AUDIOVIS_ENGINE_H
 #define AUDIOVIS_ENGINE_H
 
-#include <string>
+#include <string_view>
 #include <aquila/source/WaveFile.h>
 #include <chrono>
 #include <fstream>
@@ -27,7 +27,7 @@ public:
     ///
     /// \brief Constructor
     /// \param fileName
-    Engine(std::string fileName, Config config);
+    Engine(const std::string& fileName, Config config);
 
     ///
     /// \brief high level entry point for running the engine
