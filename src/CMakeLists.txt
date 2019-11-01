@@ -5,6 +5,7 @@ add_executable(analyzable
 target_link_libraries(analyzable ${CONAN_LIBS})
 target_link_libraries(analyzable Aquila)
 target_link_libraries(analyzable Threads::Threads)
+target_link_libraries(analyzable stdc++fs)
 
 file(GLOB MY_RESOURCE_FILES
         ${PROJECT_SOURCE_DIR}/res/*.wav)

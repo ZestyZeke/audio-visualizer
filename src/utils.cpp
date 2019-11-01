@@ -33,6 +33,10 @@ void utils::scaleLog(std::vector<double> &currBuffer) {
     const double FACTOR = 10 / std::log(BASE); // why can't std::log() be constexpr?
 
     auto scaleFunc = [=] (double x) {
+        if (x == 0) {
+            return x; // applying std::log(x) will return -inf
+        }
+
         const double TERM = (x * x) / TERM_DENOM;
         return FACTOR * std::log(TERM);
     };

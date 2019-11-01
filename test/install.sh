@@ -34,3 +34,4 @@ CC="$C_COMPILER" CXX="$CXX_COMPILER" cmake .. -G "Unix Makefiles" -DCMAKE_BUILD_
 # now, build
 # -------------------------------------------------------
 make
+echo ""

@@ -3,6 +3,7 @@
  */
 #include <iostream>
 #include <unistd.h>
+#include <experimental/filesystem>
 
 #include <SFML/Audio.hpp>
 
@@ -30,6 +31,12 @@ int main(int argc, char **argv) {
         fileName = std::string(argv[1]);
     }
 
-    Engine engine(fileName, config);
-    engine.run();
+    // verify that file exists
+    if (std::experimental::filesystem::exists(fileName)) {
+        Engine engine(fileName, config);
+        engine.run();
+    } else {
+        std::cerr << "file [" << fileName <<
+        "] does not exist in current directory" << std::endl;
+    }
 }
