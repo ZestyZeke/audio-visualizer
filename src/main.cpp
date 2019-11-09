@@ -2,15 +2,20 @@
  * audio-vis.cpp
  */
 #include <iostream>
-#include <SFML/Audio.hpp>
 #include <unistd.h>
-#include "Visualizer.h"
+#include <experimental/filesystem>
+
+#include <SFML/Audio.hpp>
+
 #include <fftw3.h>
+
 #include <aquila/global.h>
 #include <aquila/source/generator/SineGenerator.h>
 #include <aquila/tools/TextPlot.h>
 #include <aquila/source/WaveFile.h>
 #include <aquila/transform/FftFactory.h>
+
+#include "Visualizer.h"
 #include "Engine.h"
 #include "Config.h"
 
@@ -26,6 +31,12 @@ int main(int argc, char **argv) {
         fileName = std::string(argv[1]);
     }
 
-    Engine engine(fileName, config);
-    engine.run();
+    // verify that file exists
+    if (std::experimental::filesystem::exists(fileName)) {
+        Engine engine(fileName, config);
+        engine.run();
+    } else {
+        std::cerr << "file [" << fileName <<
+        "] does not exist in current directory" << std::endl;
+    }
 }

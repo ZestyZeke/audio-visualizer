@@ -96,7 +96,7 @@ private:
 
     ///
     /// \brief the size of the buffer passing into the fft transform
-    std::size_t _FFT_SIZE;
+    const std::size_t _FFT_SIZE;
 
     ///
     /// \brief the pre-computed values to use for windowing
@@ -115,10 +115,15 @@ private:
     ///
     /// \brief the sample rate of the song
     /// used for frequency calculations
-    double _sampleRate;
+    const double _SAMPLE_RATE;
 
-    //@TODO: description
-    double _EWMA_ALPHA;
+    ///
+    /// \brief the ewma alpha factor for smoothing
+    const double _EWMA_ALPHA;
+
+    ///
+    /// \brief true for simple scaling, false for complex scaling
+    const bool _USE_SIMPLE_SCALE;
 
 };
 

@@ -22,4 +22,7 @@
     <ewmaAlpha>
         0.3
     </ewmaAlpha>
+    <useSimpleScale>
+        1
+    </useSimpleScale>
 </config>
