@@ -53,6 +53,10 @@ struct Config {
     double ewmaAlpha;
 
     ///
+    /// \brief used for determining if simple scaling or complex scaling
+    bool useSimpleScale;
+
+    ///
     /// \brief function that grabs config info from a given file
     /// \param fileName the name of the file to be grapped
     void loadFile(std::string fileName);

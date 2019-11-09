@@ -13,13 +13,14 @@
 #include "utils.h"
 #include <range/v3/all.hpp>
 
-Analyzer::Analyzer(Config config, double samplingRate) {
-    _FFT_SIZE = config.fftSize;
-    _EWMA_ALPHA = config.ewmaAlpha;
+Analyzer::Analyzer(Config config, double samplingRate) :
+    _FFT_SIZE(config.fftSize),
+    _EWMA_ALPHA(config.ewmaAlpha),
+    _USE_SIMPLE_SCALE(config.useSimpleScale),
+    _SAMPLE_RATE(samplingRate) {
+
     _in = static_cast<double *>(fftw_malloc(sizeof(double) * _FFT_SIZE));
     _out = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * _FFT_SIZE));
-
-    _sampleRate = samplingRate;
 
     setupFftPlan();
 
@@ -27,7 +28,7 @@ Analyzer::Analyzer(Config config, double samplingRate) {
     calcWindowVals();
     _freqBinList = utils::generateFrequencyAxis(samplingRate);
     _extrema.setFrequencyBin(_freqBinList);
-    _extrema.setFrequencyFactor(_sampleRate / _FFT_SIZE);
+    _extrema.setFrequencyFactor(_SAMPLE_RATE / _FFT_SIZE);
 }
 
 void Analyzer::setupFftPlan() {
@@ -83,8 +84,11 @@ std::vector<double> Analyzer::transform(const std::vector<Aquila::SampleType>& s
     utils::parallelTransform<std::vector<double>>(power, powerRight);
 
     // scale to be a percentage of the absolute peak
-    //_extrema.simpleScale(power);
-    _extrema.complexScale(power);
+    if (_USE_SIMPLE_SCALE) {
+        _extrema.simpleScale(power);
+    } else {
+        _extrema.complexScale(power);
+    }
 
     auto spectrum = spectrumize(power);
 
@@ -159,7 +163,7 @@ std::vector<double> Analyzer::spectrumize(const std::vector<double> magnitudeLis
 
     for (int i = 0; i < magnitudeList.size(); i++) {
         const double MAGNITUDE = magnitudeList[i];
-        const double FREQ = i * _sampleRate / _FFT_SIZE;
+        const double FREQ = i * _SAMPLE_RATE / _FFT_SIZE;
 
         const int BIN_INDEX = utils::findBin(FREQ, _freqBinList);
         if (BIN_INDEX != -1 && MAGNITUDE > peakMagnitudes[BIN_INDEX]) {
