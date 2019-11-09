@@ -5,7 +5,6 @@
 #ifndef AUDIOVIS_ENGINE_H
 #define AUDIOVIS_ENGINE_H
 
-#include <string_view>
 #include <aquila/source/WaveFile.h>
 #include <chrono>
 #include <fstream>
