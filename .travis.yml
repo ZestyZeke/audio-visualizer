@@ -8,10 +8,10 @@ addons:
         sources:
             - ubuntu-toolchain-r-test
         packages:
-            - clang++-6.0
+            - clang++-7.0
             - valgrind
 install:
-    - "[ $CXX = clang++ ] && export CXX=clang++-6.0 || true"
+    - "[ $CXX = clang++ ] && export CXX=clang++-7.0 || true"
 # Install conan
     - pip install conan --user
 # Automatic detection of arch, compiler, etc.
@@ -26,7 +26,7 @@ install:
     - popd
 script:
 # Download dependencies 
-    - mkdir .conan && pushd .conan && conan install .. -s compiler=clang -s compiler.version=6.0 -s compiler.libcxx=libstdc++11 --build=missing && popd
+    - mkdir .conan && pushd .conan && conan install .. -s compiler=clang -s compiler.version=7.0 -s compiler.libcxx=libstdc++11 --build=missing && popd
 # Build Project
     - mkdir cmake-build && cd cmake-build
     - cmake .. -G "Unix Makefiles"
