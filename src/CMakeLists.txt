@@ -2,6 +2,8 @@ add_executable(analyzable
         main.cpp Visualizer.cpp Analyzer.cpp
         Engine.cpp Extrema.cpp utils.cpp Config.cpp)
 
+target_compile_features(analyzable PUBLIC cxx_std_17)
+
 target_link_libraries(analyzable ${CONAN_LIBS})
 target_link_libraries(analyzable Aquila)
 target_link_libraries(analyzable Threads::Threads)
