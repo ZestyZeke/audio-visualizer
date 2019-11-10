@@ -94,7 +94,7 @@ void Engine::loop() {
     const auto START = system_clock::now();
     for (size_t i = 0; i < NUM_FRAMES && _visualizer.isWindowOpen(); i++) {
 
-        std::optional<std::vector<double>> displayableData = _dataQueue.dequeue();
+        OptData displayableData = _dataQueue.dequeue();
         if (!displayableData) {
             logBeforeBreak(i, NUM_FRAMES);
             break;

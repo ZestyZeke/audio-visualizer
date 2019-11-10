@@ -9,7 +9,11 @@
 #include <queue>
 #include <mutex>
 #include <condition_variable>
-#include <optional>
+#include <experimental/optional>
+
+///
+/// \typedef for convenience
+using OptData = std::experimental::optional<std::vector<double>>;
 
 ///
 /// \class DataQueue
@@ -35,7 +39,7 @@ public:
     /// \brief  dequeues data, returning an empty optional if wait
     /// timed out
     /// \return optional wrapping displayable data
-    std::optional<std::vector<double>> dequeue() {
+    OptData dequeue() {
         std::unique_lock<std::mutex> lockGuard (_mutex);
 
         using namespace std::chrono_literals;
