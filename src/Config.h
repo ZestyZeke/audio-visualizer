@@ -34,15 +34,15 @@ struct Config {
 
     ///
     /// \brief the size of the FFT to perform
-    std::size_t fftSize;
+    size_t fftSize;
 
     ///
     /// \brief the
-    std::size_t maxHeight;
+    size_t maxHeight;
 
     ///
     /// \brief the number of vertical bins to divide the window into
-    std::size_t numRows;
+    size_t numRows;
 
     ///
     /// \brief the title to display on the window

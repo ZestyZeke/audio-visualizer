@@ -26,9 +26,9 @@ _NUM_ROWS(config.numRows)
 
 }
 
-std::vector<std::size_t> Visualizer::normalize(std::vector<double> buffer, const double minHeight,
+std::vector<size_t> Visualizer::normalize(std::vector<double> buffer, const double minHeight,
         const double maxHeight) {
-    std::vector<std::size_t> normalizedBuffer;
+    std::vector<size_t> normalizedBuffer;
     // overloads assignment operator as push_back() member function
     auto backInserter = std::back_inserter(normalizedBuffer);
 
@@ -37,7 +37,7 @@ std::vector<std::size_t> Visualizer::normalize(std::vector<double> buffer, const
     for (auto sample : buffer) {
 
         bool inInterval {false};
-        for (std::size_t i = 0; i < _NUM_ROWS; i++) {
+        for (size_t i = 0; i < _NUM_ROWS; i++) {
             inInterval = minHeight + i * step <= sample &&
                     sample <= minHeight + (i + 1) * step;
             if (inInterval) {
@@ -50,9 +50,9 @@ std::vector<std::size_t> Visualizer::normalize(std::vector<double> buffer, const
             continue;
 
         if (sample < minHeight) {
-            backInserter = static_cast<std::size_t>(minHeight + 1);
+            backInserter = static_cast<size_t>(minHeight + 1);
         } else if (sample > maxHeight) {
-            backInserter = static_cast<std::size_t>(maxHeight - 1);
+            backInserter = static_cast<size_t>(maxHeight - 1);
         }
     }
     return normalizedBuffer;
@@ -64,7 +64,7 @@ void Visualizer::displayToScreen(std::vector<double> buffer, const double minHei
         return;
     }
 
-    std::vector<std::size_t> normalizedBuffer = normalize(buffer, minHeight, maxHeight);
+    std::vector<size_t> normalizedBuffer = normalize(buffer, minHeight, maxHeight);
 
     checkBufferSize(normalizedBuffer.size());
 
@@ -73,7 +73,7 @@ void Visualizer::displayToScreen(std::vector<double> buffer, const double minHei
     const double ROW_HEIGHT = _window.getSize().y / _NUM_ROWS;
 
     for (int i = 0; i < normalizedBuffer.size(); i++) {
-        const std::size_t numRows = normalizedBuffer[i];
+        const size_t numRows = normalizedBuffer[i];
         sf::VertexArray& rectangle = _rectangleList[i];
 
         const float TOP = static_cast<float>(_window.getSize().y - numRows * ROW_HEIGHT);
@@ -87,7 +87,7 @@ void Visualizer::displayToScreen(std::vector<double> buffer, const double minHei
     _window.display();
 }
 
-void Visualizer::checkBufferSize(const std::size_t size) {
+void Visualizer::checkBufferSize(const size_t size) {
     if (_rectangleList.size() == size) {
         return;
     }

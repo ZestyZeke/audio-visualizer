@@ -47,7 +47,7 @@ void Analyzer::setupFftPlan() {
 void Analyzer::calcWindowVals() {
     auto windowFunc = utils::windowHanning;
     _windowVals = std::vector<double> (_FFT_SIZE, 0);
-    for (std::size_t i = 0; i < _FFT_SIZE; i++) {
+    for (size_t i = 0; i < _FFT_SIZE; i++) {
         _windowVals[i] = windowFunc(i, _FFT_SIZE);
     }
 }
@@ -120,10 +120,10 @@ void Analyzer::updateExtrema(const std::vector<Aquila::SampleType>& sampleBuffer
 
 std::vector<double> Analyzer::applyFft(const std::vector<Aquila::SampleType>& sampleBuffer) {
     // setup
-    const std::size_t N = sampleBuffer.size();
+    const size_t N = sampleBuffer.size();
 
     // copy dynamic vals
-    for (std::size_t i = 0; i < N; i++) {
+    for (size_t i = 0; i < N; i++) {
         _in[i]  = sampleBuffer[i];
         _in[i] *= _windowVals[i]; // apply windowing function
     }

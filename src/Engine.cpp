@@ -14,6 +14,7 @@
 #include <aquila/source/WaveFile.h>
 
 #include "Engine.h"
+#include "utils.h"
 
 Engine::Engine(const std::string& fileName, Config config)
 :_FFT_SIZE {config.fftSize},
@@ -22,13 +23,14 @@ _wavFilePair {std::make_pair(Aquila::WaveFile(fileName, Aquila::StereoChannel::L
         Aquila::WaveFile(fileName, Aquila::StereoChannel::RIGHT))},
 _analyzer {config, _wavFilePair.first.getSampleFrequency()},
 _visualizer {config},
-_log{"log.txt"}
+_log{"log.txt"},
+_continueAnalyzing{true}
 {
     // extract useful info from wav
     _NUM_SAMPLES = _wavFilePair.first.getSamplesCount();
-    const std::size_t AUDIO_LENGTH = _wavFilePair.first.getAudioLength();
+    const size_t AUDIO_LENGTH = _wavFilePair.first.getAudioLength();
     const double delay = std::floor((AUDIO_LENGTH * _FFT_SIZE) / _NUM_SAMPLES);
-    _DELAY = std::chrono::milliseconds(static_cast<int>(delay));
+    _FRAME_LENGTH = std::chrono::milliseconds(static_cast<int>(delay));
 }
 
 void Engine::run() {
@@ -40,17 +42,20 @@ void Engine::run() {
         std::cerr << "Wasn't able to open file" << std::endl;
         return;
     }
+
     setup();
+    startThread();
 
     song.play();
 
     loop();
+    stopThread();
 }
 
-void Engine::copySamplesToBuffer(std::size_t fftBinIndex, std::vector<Aquila::SampleType> &sampleBuffer,
+void Engine::copySamplesToBuffer(size_t fftBinIndex, std::vector<Aquila::SampleType> &sampleBuffer,
                                  Aquila::WaveFile &waveFile) {
-    const std::size_t FFT_BIN_BEGIN = fftBinIndex * _FFT_SIZE;
-    const std::size_t FFT_BIN_END = (fftBinIndex + 1) * _FFT_SIZE;
+    const size_t FFT_BIN_BEGIN = fftBinIndex * _FFT_SIZE;
+    const size_t FFT_BIN_END = (fftBinIndex + 1) * _FFT_SIZE;
 
     using namespace ranges;
     auto toSample = [&] (int i) -> Aquila::SampleType {
@@ -64,7 +69,7 @@ void Engine::setup() {
     std::vector<Aquila::SampleType> sampleBufferLeft;
     std::vector<Aquila::SampleType> sampleBufferRight;
 
-    for (std::size_t i = 0;
+    for (size_t i = 0;
          i < std::floor(_NUM_SAMPLES / _FFT_SIZE);
          i++) {
 
@@ -80,56 +85,77 @@ void Engine::loop() {
     using std::chrono::milliseconds;
     using std::chrono::duration_cast;
 
-    milliseconds debt {0};
+    auto logBeforeBreak = [] (size_t frameIndex, size_t numFrames) {
+        std::cerr << "wait took too long on frameIndex " << frameIndex <<
+        " with numFrames " << numFrames << std::endl;
+    };
+
+    const size_t NUM_FRAMES = std::floor(_NUM_SAMPLES / _FFT_SIZE);
+    const auto START = system_clock::now();
+    for (size_t i = 0; i < NUM_FRAMES && _visualizer.isWindowOpen(); i++) {
+
+        std::optional<std::vector<double>> displayableData = _dataQueue.dequeue();
+        if (!displayableData) {
+            logBeforeBreak(i, NUM_FRAMES);
+            break;
+        }
+
+        // sleep until at half frame time point
+        std::this_thread::sleep_until(START + (i + .5) * _FRAME_LENGTH);
+        _visualizer.displayToScreen(*displayableData, 0, _MAX_HEIGHT);
+
+        displayableData = _dataQueue.dequeue();
+        if (!displayableData) {
+            logBeforeBreak(i, NUM_FRAMES);
+            break;
+        }
+
+        // sleep until at end frame time point
+        std::this_thread::sleep_until(START + (i + 1) * _FRAME_LENGTH);
+        _visualizer.displayToScreen(*displayableData, 0, _MAX_HEIGHT);
+
+    }
+}
+
+void Engine::threadRun() {
+
+    const size_t NUM_FRAMES = std::floor(_NUM_SAMPLES / _FFT_SIZE);
     std::vector<Aquila::SampleType> sampleBufferLeft;
     std::vector<Aquila::SampleType> sampleBufferRight;
-
-    for (std::size_t i = 0;
-         i < std::floor(_NUM_SAMPLES / _FFT_SIZE) && _visualizer.isWindowOpen();
-         i++) {
-
-        const auto START = system_clock::now();
+    std::vector<double> lastResult;
+    for (size_t i = 0; i < NUM_FRAMES && _continueAnalyzing; i++) {
 
         copySamplesToBuffer(i, sampleBufferLeft, _wavFilePair.first);
         copySamplesToBuffer(i, sampleBufferRight, _wavFilePair.second);
 
-        //@TODO: where i left off...
         std::vector<double> displayableData = _analyzer.transform(sampleBufferLeft,
             sampleBufferRight);
 
-        _visualizer.displayToScreen(displayableData, 0, _MAX_HEIGHT);
+        if (!lastResult.empty()) {
+            // interpolate between last Result and current
+            utils::interpolate(lastResult, displayableData);
+            // enqueue this interpolation
+            _dataQueue.enqueue(lastResult);
+        }
 
-        const auto END = system_clock::now();
-        const milliseconds TIME_ELAPSED = duration_cast<milliseconds>(END - START);
+        lastResult = displayableData;
+        _dataQueue.enqueue(displayableData);
 
-        // this function will call sleep if there is time to spare after displaying
-        debt = balanceTime(debt, TIME_ELAPSED);
+        // if end of loop, add an interpolation between last enqueued
+        // and all 0's...
+        if (i == NUM_FRAMES - 1) {
+            const std::vector<double> zeroes (displayableData.size(), 0);
+            utils::interpolate(displayableData, zeroes);
+            _dataQueue.enqueue(displayableData);
+        }
     }
 }
 
-std::chrono::milliseconds Engine::balanceTime(const std::chrono::milliseconds currDebt,
-        const std::chrono::milliseconds timeElapsed) {
-    using namespace std::chrono;
+void Engine::startThread() {
+    _analyzerThread = std::thread(&Engine::threadRun, this);
+}
 
-    if (timeElapsed < _DELAY) {
-        // have some time to spare after passing through analyzer and visualizer
-        // can use this time to pay off debt, or to just sleep the remaining time.
-        const milliseconds AVAILABLE_TIME = _DELAY - timeElapsed;
-
-        // check if debt can be payed this cycle
-        if (currDebt < AVAILABLE_TIME) {
-            std::this_thread::sleep_for(AVAILABLE_TIME - currDebt);
-            return 0ms;
-        }
-
-        // final case: currDebt > AVAILABLE_TIME
-        // pay back debt by not sleeping, and update the currDebt
-        return currDebt - AVAILABLE_TIME;
-
-    } else {
-        // don't have time to spare
-        // adjust debt for falling behind
-        const milliseconds OVERFLOW_TIME = timeElapsed - _DELAY;
-        return currDebt + OVERFLOW_TIME;
-    }
+void Engine::stopThread() {
+    _continueAnalyzing = false;
+    _analyzerThread.join();
 }

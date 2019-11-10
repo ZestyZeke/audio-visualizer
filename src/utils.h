@@ -79,14 +79,14 @@ namespace utils {
     /// \param i the ith index
     /// \param N the size of the list
     /// \return windowed value
-    double windowHanning(std::size_t i, std::size_t N);
+    double windowHanning(size_t i, size_t N);
 
     ///
     /// \brief applies the Black window function
     /// \param i the ith index
     /// \param N the size of the list
     /// \return windowed value
-    double windowBlack(std::size_t i, std::size_t N);
+    double windowBlack(size_t i, size_t N);
 
     //@TODO: update documentation for any added parameters
     ///
@@ -103,7 +103,13 @@ namespace utils {
     /// \param squashFactor the factor to squash by
     /// \throws std::runtime_error if buffer is not exactly squashable by four
     /// \return a squashed buffer
-    std::vector<double> squashBuffer(std::vector<double> buffer, std::size_t squashFactor);
+    std::vector<double> squashBuffer(std::vector<double> buffer, size_t squashFactor);
+
+    ///
+    /// \brief interpolates between two vectors, storing result in one of them
+    /// \param startData vector to store result in and interpolate from
+    /// \param endData other vector to interpolate from
+    void interpolate(std::vector<double>& startData, const std::vector<double>& endData);
 
 };
 

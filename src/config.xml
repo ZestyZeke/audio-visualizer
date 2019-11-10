@@ -1,6 +1,6 @@
 <config>
     <fftSize>
-        2048
+        4096
     </fftSize>
     <resolution>
         <x>

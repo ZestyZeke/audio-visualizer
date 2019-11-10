@@ -45,12 +45,12 @@ private:
     /// \param minHeight relative to bottom of window
     /// \param maxHeight relative to bottom of window
     /// \return normalized buffer
-    std::vector<std::size_t> normalize(std::vector<double> buffer, const double minHeight, const double maxHeight);
+    std::vector<size_t> normalize(std::vector<double> buffer, const double minHeight, const double maxHeight);
 
     ///
     /// \brief compares the buffer's size to that of _rectangleList and reconstructs the list if necessary
     /// \param size the to-be-transformed buffer's size
-    void checkBufferSize(const std::size_t size);
+    void checkBufferSize(const size_t size);
 
     ///
     /// \brief checks to see if an event has occured
@@ -62,7 +62,7 @@ private:
 
     ///
     /// \brief number of vertical bins to divide the window into
-    const std::size_t _NUM_ROWS;
+    const size_t _NUM_ROWS;
 
     ///
     /// \brief the window to use for rendering shapes

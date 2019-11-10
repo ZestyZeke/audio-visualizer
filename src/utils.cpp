@@ -45,7 +45,7 @@ void utils::scaleLog(std::vector<double> &currBuffer) {
     currBuffer |= transform(scaleFunc);
 }
 
-double utils::windowBlack(const std::size_t i, const std::size_t N) {
+double utils::windowBlack(const size_t i, const size_t N) {
     constexpr double ALPHA = WINDOW_ALPHA;
     constexpr double TERM1 = (1 - ALPHA) / 2;
     const double     TERM2 = 0.5 * cos((2 * PI * i) / (N - 1));
@@ -53,7 +53,7 @@ double utils::windowBlack(const std::size_t i, const std::size_t N) {
     return TERM1 - TERM2 + TERM3;
 }
 
-double utils::windowHanning(const std::size_t i, const std::size_t N) {
+double utils::windowHanning(const size_t i, const size_t N) {
     return 0.5 * (1 - cos((2 * PI * i) / (N - 1)));
 }
 
@@ -82,7 +82,7 @@ std::vector<double> utils::generateFrequencyAxis(const double sampleRate) {
     return view::ints(x1, x2 + 1) | view::transform(func);
 }
 
-std::vector<double> utils::squashBuffer(std::vector<double> buffer, std::size_t squashFactor) {
+std::vector<double> utils::squashBuffer(std::vector<double> buffer, size_t squashFactor) {
     if (buffer.size() % squashFactor != 0) {
         throw std::runtime_error("buffer is not squashable by " + std::to_string(squashFactor));
     }
@@ -92,7 +92,7 @@ std::vector<double> utils::squashBuffer(std::vector<double> buffer, std::size_t 
     auto it = squashedBuffer.begin();
     auto begin = buffer.begin();
 
-    for (std::size_t i = 0; i < buffer.size(); i += squashFactor) {
+    for (size_t i = 0; i < buffer.size(); i += squashFactor) {
         auto pos = begin + i;
         auto end = pos + squashFactor;
         const double AVG = std::accumulate(pos, end, 0) / squashFactor;
@@ -100,4 +100,11 @@ std::vector<double> utils::squashBuffer(std::vector<double> buffer, std::size_t 
     }
 
     return squashedBuffer;
+}
+
+void utils::interpolate(std::vector<double> &startData,
+    const std::vector<double> &endData) {
+    for (auto i = 0; i < startData.size(); i++) {
+        startData[i] = (startData[i] + endData[i]) / 2;
+    }
 }

@@ -96,7 +96,7 @@ private:
 
     ///
     /// \brief the size of the buffer passing into the fft transform
-    const std::size_t _FFT_SIZE;
+    const size_t _FFT_SIZE;
 
     ///
     /// \brief the pre-computed values to use for windowing

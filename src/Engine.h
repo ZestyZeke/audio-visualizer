@@ -5,12 +5,17 @@
 #ifndef AUDIOVIS_ENGINE_H
 #define AUDIOVIS_ENGINE_H
 
-#include <aquila/source/WaveFile.h>
 #include <chrono>
 #include <fstream>
+#include <thread>
+#include <atomic>
+
+#include <aquila/source/WaveFile.h>
+
 #include "Analyzer.h"
 #include "Visualizer.h"
 #include "Config.h"
+#include "DataQueue.h"
 
 ///
 /// \class Engine
@@ -44,43 +49,41 @@ private:
     /// and all high-level processing that occurs with the grabbed samples
     void loop();
 
-    ///
-    /// \brief keeps track of 'debt' - how far behind visuals are from audio,
-    /// and adjusts accordingly
-    /// \param currDebt
-    /// \param timeElapsed
-    /// \return
-    std::chrono::milliseconds balanceTime(const std::chrono::milliseconds currDebt,
-            const std::chrono::milliseconds timeElapsed);
-
     //@TODO: add description
     //@TODO: come up with better name than 'interva'l
-    void copySamplesToBuffer(std::size_t fftBinIndex, std::vector<Aquila::SampleType>& sampleBuffer,
+    void copySamplesToBuffer(size_t fftBinIndex, std::vector<Aquila::SampleType>& sampleBuffer,
         Aquila::WaveFile& waveFile);
 
     ///
+    /// \brief function that analyzer thread executes
+    void threadRun();
+
+    ///
+    /// \brief starts the analyzer thread
+    void startThread();
+
+    ///
+    /// \brief stops the analyzer thread
+    void stopThread();
+
+    ///
     /// \brief the total number of samples in the song
-    std::size_t _NUM_SAMPLES;
+    size_t _NUM_SAMPLES;
 
     ///
     /// \brief the number of samples to grab at each iteration for fft processing
-    const std::size_t _FFT_SIZE;
+    const size_t _FFT_SIZE;
 
     //@TODO: give description
-    const std::size_t _MAX_HEIGHT;
+    const size_t _MAX_HEIGHT;
 
     ///
-    /// \brief if processing occured instantaneously, this would be the amount
+    /// \brief if processing occurred instantaneously, this would be the amount
     /// of time to wait inbetween iterations to ensure audio synchs with visuals
-    std::chrono::milliseconds _DELAY;
+    std::chrono::milliseconds _FRAME_LENGTH;
 
-    //@TODO: update...
-    /*
     ///
-    /// \brief a handle to the audio file in Wav format
-    Aquila::WaveFile _wav;
-     */
-    // first is left, second is right
+    /// \brief first is left channel, second is right channel, handles to audio wav file
     std::pair<Aquila::WaveFile, Aquila::WaveFile> _wavFilePair;
 
     ///
@@ -95,8 +98,18 @@ private:
     /// \brief log for debugging
     std::ofstream _log;
 
-    Aquila::SampleType _max;
-    Aquila::SampleType _min;
+    ///
+    /// \brief separate thread that performs work of analyzing samples
+    std::thread _analyzerThread;
+
+    ///
+    /// \brief indicates to analyzer thread if it should continue
+    std::atomic_bool _continueAnalyzing;
+
+    ///
+    /// \brief allows for synchronized data passing between this thread
+    /// and analyzer thread
+    DataQueue _dataQueue;
 };
 
 
