@@ -3,20 +3,7 @@
 //
 
 #include "Visualizer.h"
-#include <aquila/global.h>
-#include <aquila/source/WaveFile.h>
-#include <aquila/transform/FftFactory.h>
-#include <aquila/tools/TextPlot.h>
 #include <vector>
-#include <aquila/source/generator/SineGenerator.h>
-#include <iostream>
-#include <algorithm>
-#include <chrono>
-#include <thread>
-#include <fftw3.h>
-#include <cmath>
-#include <fstream>
-#include <SFML/Audio/Music.hpp>
 
 Visualizer::Visualizer(Config config)
 : _color(sf::Color::Cyan),

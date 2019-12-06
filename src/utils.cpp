@@ -5,7 +5,6 @@
 #include "utils.h"
 #include <algorithm>
 #include <functional>
-#include <future>
 #include <cmath>
 #include <numeric>
 #include <range/v3/all.hpp>

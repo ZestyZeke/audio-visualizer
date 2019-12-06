@@ -5,7 +5,6 @@
 #ifndef AUDIOVIS_ANALYZER_H
 #define AUDIOVIS_ANALYZER_H
 
-
 #include <fftw3.h>
 #include <string>
 #include <vector>
