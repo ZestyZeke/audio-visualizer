@@ -65,12 +65,12 @@ private:
     const size_t _NUM_ROWS;
 
     ///
-    /// \brief the window to use for rendering shapes
-    sf::RenderWindow _window;
-
-    ///
     /// \brief the color to use for each rectangle
     sf::Color _color;
+
+    ///
+    /// \brief the window to use for rendering shapes
+    sf::RenderWindow _window;
 
     ///
     /// \brief the list of rectangles to be drawn onto the window

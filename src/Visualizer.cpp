@@ -6,9 +6,9 @@
 #include <vector>
 
 Visualizer::Visualizer(Config config)
-: _color(sf::Color::Cyan),
-_window(sf::VideoMode(config.resolution.x, config.resolution.y), config.windowTitle),
-_NUM_ROWS(config.numRows)
+:_NUM_ROWS(config.numRows),
+_color(sf::Color::Cyan),
+_window(sf::VideoMode(config.resolution.x, config.resolution.y), config.windowTitle)
 {
 
 }

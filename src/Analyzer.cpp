@@ -2,22 +2,18 @@
 // Created by zeke on 9/30/18.
 //
 
-#include <cmath>
-#include <iostream>
 #include <array>
 #include "Analyzer.h"
-#include <limits>
 #include <algorithm>
-#include <numeric>
-#include <future>
 #include "utils.h"
 #include <range/v3/all.hpp>
 
 Analyzer::Analyzer(Config config, double samplingRate) :
     _FFT_SIZE(config.fftSize),
+    _SAMPLE_RATE(samplingRate),
     _EWMA_ALPHA(config.ewmaAlpha),
-    _USE_SIMPLE_SCALE(config.useSimpleScale),
-    _SAMPLE_RATE(samplingRate) {
+    _USE_SIMPLE_SCALE(config.useSimpleScale)
+    {
 
     _in = static_cast<double *>(fftw_malloc(sizeof(double) * _FFT_SIZE));
     _out = static_cast<fftw_complex *>(fftw_malloc(sizeof(fftw_complex) * _FFT_SIZE));
@@ -32,7 +28,7 @@ Analyzer::Analyzer(Config config, double samplingRate) :
 }
 
 void Analyzer::setupFftPlan() {
-    const std::string wisdomFileName {"wisdon.config"};
+    const std::string wisdomFileName {"wisdom.config"};
     const int LOADED =
         fftw_import_wisdom_from_filename(wisdomFileName.c_str());
 
